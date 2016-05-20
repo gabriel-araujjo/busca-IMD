@@ -7,3 +7,5 @@ Trabalho final das disciplinas *Linguagem de Programação 1/Estrutura de Dados 
 Gabriel Araújo
 
 Pedro Paulo Paiva de Medeiros
+
+&copy; 2016

@@ -4,12 +4,25 @@
 
 #include "result.h"
 
-Result createResult(SortOrder sortOrder, bool showTime) {
-    Result result = {sortOrder, showTime};
-    return result;
+search::Result::Result(search::Result::SortOrder order, bool st)
+        : sortOrder(order), showTime(st) {
+
 }
 
-bool addEntry(Result result, Entry entry) {
-    //TODO: Implementar a adição de entradas no resultado
+search::Result::Result(search::Result other)
+        : sortOrder(other.sortOrder), showTime(other.showTime) {
+
+}
+
+search::Result::~Result() {
+
+}
+
+bool search::Result::addEntry(Entry entry) {
     return false;
+}
+
+search::Result &search::Result::operator<<(Entry entry) {
+    addEntry(entry);
+    return *this;
 }
