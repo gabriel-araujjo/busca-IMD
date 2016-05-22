@@ -4,6 +4,6 @@
 
 #include "hash_map.h"
 
-HashMap HashMap::Create() {
-    return nullptr;
-}
+//HashMap HashMap::Create() {
+//    return nullptr;
+//}

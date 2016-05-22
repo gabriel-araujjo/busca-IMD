@@ -7,15 +7,15 @@
 
 #include "array.h"
 
-template<typename Key, typename Value>
+/**template<typename Key, typename Value>
 typedef struct tpHashMap {
-    Array<Key> keys;
-    Array<Value> values;
+    //Array<Key> keys;
+    //Array<Value> values;
     int size;
 } * HashMap;
 
 namespace HashMap {
     HashMap Create();
-}
+}**/
 
 #endif //BUSCA_IMD_HASH_MAP_H

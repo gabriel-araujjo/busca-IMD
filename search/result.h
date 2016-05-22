@@ -7,14 +7,14 @@
 
 #include "entry.h"
 
+
+
 namespace search {
 
+    typedef enum SortOrder{ ALPHABETICAL, MATCH_COUNT, NATURAL} ;
+
     class Result {
-
-    public:
-
-        static enum SortOrder { ALPHABETICAL, MATCH_COUNT, NATURAL};
-
+        
     private:
         const SortOrder sortOrder;
 
@@ -23,7 +23,7 @@ namespace search {
     public:
 
         Result(SortOrder sortOrder, bool showTime);
-        Result(Result other);
+        Result(const Result &other);
 
         virtual ~Result();
 

@@ -7,7 +7,7 @@
 
 #include "result.h"
 
-using search::Result::SortOrder;
+//using search::Result::SortOrder;
 
 namespace search {
 

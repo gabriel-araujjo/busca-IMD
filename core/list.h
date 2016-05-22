@@ -18,8 +18,8 @@ namespace core {
 
     private:
         typedef struct tpNode {
-            Node prev;
-            Node next;
+            struct tpNode* prev;
+            struct tpNode* next;
             Element * element;
         } * Node;
 
