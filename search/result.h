@@ -7,14 +7,14 @@
 
 #include "entry.h"
 
-
-
 namespace search {
 
-    typedef enum SortOrder{ ALPHABETICAL, MATCH_COUNT, NATURAL} ;
-
     class Result {
-        
+
+    public:
+
+        enum SortOrder { ALPHABETICAL, MATCH_COUNT, NATURAL};
+
     private:
         const SortOrder sortOrder;
 

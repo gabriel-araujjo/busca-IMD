@@ -9,7 +9,7 @@ search::Result::Result(SortOrder order, bool st)
 
 }
 
-search::Result::Result(const search::Result& other)
+search::Result::Result(const search::Result &other)
         : sortOrder(other.sortOrder), showTime(other.showTime) {
 
 }

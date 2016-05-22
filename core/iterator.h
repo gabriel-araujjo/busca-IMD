@@ -11,7 +11,7 @@ namespace core {
     public:
         Element operator*();
 
-        Iterator & operator++();
+        Iterator<Element> & operator++();
 
         bool isEnd();
     };

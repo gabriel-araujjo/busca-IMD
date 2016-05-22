@@ -2,43 +2,42 @@
 <module type="CPP_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/test/list_test.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/test/list_test.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/search/result.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/search/entry.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/search/search.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/search/search.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/search/entry.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/search/result.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/index/index.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/index/index.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/config/config.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/config/config.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/core/array.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/core/array.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/core/hash_map.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/core/hash_map.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/core/iterator.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/core/iterator.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/core/list.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/core/list.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/core/iterator.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/core/array.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/core/hash_map.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/core/array.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/core/iterator.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/core/hash_map.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/config/config.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/config/config.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/index/index.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/index/index.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/search/entry.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/search/entry.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/search/result.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/search/result.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/search/search.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/search/search.h" isTestSource="false" />
     </content>
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
       <library name="Header Search Paths">
         <CLASSES>
-          <root url="file://C:/Win-builds/include" />
-          <root url="file://C:/Win-builds/x86_64-w64-mingw32/include" />
-          <root url="file://C:/Win-builds/lib64/gcc/x86_64-w64-mingw32/4.8.3/include" />
-          <root url="file://C:/Win-builds/lib64/gcc/x86_64-w64-mingw32/4.8.3/include-fixed" />
+          <root url="file:///usr/include" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/4.8/include" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed" />
+          <root url="file:///usr/local/include" />
         </CLASSES>
         <SOURCES>
-          <root url="file://C:/Win-builds/include" />
-          <root url="file://C:/Win-builds/x86_64-w64-mingw32/include" />
-          <root url="file://C:/Win-builds/lib64/gcc/x86_64-w64-mingw32/4.8.3/include" />
-          <root url="file://C:/Win-builds/lib64/gcc/x86_64-w64-mingw32/4.8.3/include-fixed" />
+          <root url="file:///usr/include" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/4.8/include" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed" />
+          <root url="file:///usr/local/include" />
         </SOURCES>
       </library>
     </orderEntry>
