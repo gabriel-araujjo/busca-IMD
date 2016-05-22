@@ -5,7 +5,7 @@
 #ifndef BUSCA_IMD_ENTRY_H
 #define BUSCA_IMD_ENTRY_H
 
-typedef struct Entry {
+struct Entry {
     char * file;
     int line;
     char * lineContent;

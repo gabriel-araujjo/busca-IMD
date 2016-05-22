@@ -10,10 +10,11 @@ Element core::Iterator<Element>::operator*() {
 }
 
 template <typename Element>
-Iterator &core::Iterator<Element>::operator++() {
+core::Iterator<Element> &core::Iterator<Element>::operator++() {
     return *this;
 }
 
-bool core::Iterator::isEnd() {
+template <typename Element>
+bool core::Iterator<Element>::isEnd() {
     return false;
 }

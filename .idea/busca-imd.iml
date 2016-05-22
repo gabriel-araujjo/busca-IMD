@@ -5,14 +5,14 @@
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/config/config.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/config/config.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/core/iterator.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/core/iterator.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/core/list.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/core/list.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/core/array.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/core/array.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/core/hash_map.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/core/hash_map.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/core/iterator.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/core/iterator.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/core/list.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/core/list.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/index/index.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/index/index.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />

@@ -7,7 +7,7 @@
 
 #include "result.h"
 
-using search::Result::SortOrder;
+using namespace search;
 
 namespace search {
 
@@ -17,8 +17,8 @@ namespace search {
     class Search {
 
     public:
-        Result searchAnd(const SortOrder order, const bool showTime, char ** words);
-        Result searchOr(const SortOrder order, const bool showTime, char ** words);
+        Result searchAnd(const Result::SortOrder order, const bool showTime, char ** words);
+        Result searchOr(const Result::SortOrder order, const bool showTime, char ** words);
     };
 }
 

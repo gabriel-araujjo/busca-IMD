@@ -18,8 +18,8 @@ namespace core {
 
     private:
         typedef struct tpNode {
-            Node prev;
-            Node next;
+            tpNode * prev;
+            tpNode * next;
             Element * element;
         } * Node;
 
@@ -38,7 +38,7 @@ namespace core {
         List();
         List(List<Element> &other);
 
-        virtual ~List();
+        ~List();
 
         bool add(Element element, int index = -1);
 
@@ -49,7 +49,7 @@ namespace core {
 
 
     private:
-        static class ListIterator : public Iterator<Element> {
+        class ListIterator : public Iterator<Element> {
             const List list;
             Node cursor;
         public:
@@ -62,7 +62,7 @@ namespace core {
 
             bool isEnd();
             ListIterator &operator++();
-            Element operator*();
+            Element &operator*();
         };
     };
 

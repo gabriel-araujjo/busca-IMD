@@ -30,7 +30,7 @@ List<Element>::List(List<Element> &other) {
  * Destrutor
  */
 template <typename Element>
-virtual List<Element>::~List() {
+List<Element>::~List() {
     Node cursor, markedForDeathNode;
     for (markedForDeathNode = mFirst, cursor = mFirst->next; cursor != mLast; markedForDeathNode = cursor, cursor = cursor->next) {
         delete markedForDeathNode->element;
@@ -64,7 +64,7 @@ Iterator<Element> List<Element>::iterator() {
 
 
 template <typename Element>
-bool List::add(Element element, int index) {
+bool List<Element>::add(Element element, int index) {
     Node cursor = getNodeAt(index);
 
     if (!cursor)
@@ -111,7 +111,7 @@ Element List<Element>::get(int index) {
 }
 
 template <typename Element>
-List::Node List<Element>::getNodeAt(int index) {
+typename List<Element>::Node List<Element>::getNodeAt(int index) {
     Node cursor;
 
     // retorne se o indice for inválido
@@ -187,7 +187,7 @@ bool List<Element>::ListIterator::isEnd() {
 }
 
 template <typename Element>
-List<Element>::ListIterator &List::ListIterator::operator++() {
+typename List<Element>::ListIterator &List<Element>::ListIterator::operator++() {
     if (!isEnd()) cursor = cursor->next;
     return *this;
 }
