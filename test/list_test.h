@@ -6,31 +6,29 @@
 #define BUSCA_IMD_LIST_TEST_H
 
 namespace test{
+    /*
+     * Class for test the List class
+     */
+
     class List_test {
         bool passed;
 
     public:
         List_test();
-        List_test(List_test other);
+        List_test(List_test &other);
 
         virtual ~List_test();
 
-        bool start_test();
+        void start_test();
 
     private:
-        bool test_create();
-        bool test_destroy();
+        //Esses foram os testes escolhidos, pois são as únicas classes public da classe list
+        static bool test_insertion();
+        static bool test_remove();
 
-        bool test_insertion();
+        static bool test_get();
 
-        bool test_remove();
-
-        bool test_get();
-
-        bool test_size();
     };
 }
-
-
 
 #endif //BUSCA_IMD_LIST_TEST_H
