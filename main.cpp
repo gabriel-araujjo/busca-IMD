@@ -50,14 +50,16 @@ int main(int argc, char ** argv) {
             //search using the bAND option
             //---------------------------- pensar numa melhor maneira de filtrar esses próximos argumentos
             //function to return the impression options (passing a argv[2] and returning the const Result::SortOrder)
-            //function to return the impression options (passing a argv[3] and returning the const bool showTime)
-            //searchAnd(const Result::SortOrder order, const bool showTime, char ** words);
+            //function to return the time option (passing a argv[3] and returning the const bool showTime)
+
+            //searchAnd(const Result::SortOrder order, const bool showTime, char ** words)
         }else if(strcmp(argv[1], "-bOR") == 0){
             //search using the bOR option
             //---------------------------- pensar numa melhor maneira de filtrar esses próximos argumentos
             //function to return the impression options (passing a argv[2] and returning the const Result::SortOrder)
-            //function to return the impression options (passing a argv[3] and returning the const bool showTime)
-            //searchOr(const Result::SortOrder order, const bool showTime, char ** words);
+            //function to return the time option (passing a argv[3] and returning the const bool showTime)
+
+            //searchOr(const Result::SortOrder order, const bool showTime, char ** words)
         }else{
             //print an message telling that the user inputed a wrong argument
             //list all the possible arguments
