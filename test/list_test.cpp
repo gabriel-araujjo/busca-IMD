@@ -7,7 +7,7 @@
 #include "list_test.h"
 #include "../core/list.h"
 #include "../core/list.cpp" //C:/Users/pdr_m/ClionProjects/busca-IMD/test/list_test.cpp:51: undefined reference to `core::List<int>::List()'
-                            //verificar isso
+                            //verificar isso (por algum motivo que não sei, se eu tirar esse include, ele dá o erro acima)
 
 using namespace std;
 using namespace core;
