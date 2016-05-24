@@ -12,8 +12,4 @@ set(HEADER_FILES
         list.h
         )
 
-set(SOURCE_FILES
-        list.cpp
-        )
-
-add_library(core STATIC ${SOURCE_FILES} ${HEADER_FILES})
+add_library(core STATIC ${HEADER_FILES})
