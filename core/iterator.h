@@ -9,11 +9,48 @@ namespace core {
     template <typename Element>
     class Iterator {
     public:
-        virtual Element operator*() = 0;
+        class Cursor {
+        public:
+            int references = 0;
+            virtual Element & get();
+            virtual void next() = 0;
+            virtual bool isNotEnd() = 0;
+        };
 
-        virtual Iterator<Element> & operator++() = 0;
+    private:
+        Cursor * mCursor;
 
-        virtual bool isEnd() = 0;
+    public:
+
+        Iterator(Cursor * cursor) {
+//            mCursor = cursor;
+//            mCursor->references++;
+        }
+
+        Iterator(const Iterator<Element> & other) {
+//            mCursor = other.mCursor;
+//            mCursor->references++;
+        }
+
+        Element & operator*() {
+//            return mCursor->get();
+        };
+
+        Iterator<Element> & operator++() {
+//            mCursor->next();
+            return *(this);
+        };
+
+        bool isNotEnd() {
+            mCursor->isNotEnd();
+        };
+
+        ~Iterator() {
+            mCursor->references--;
+            if (mCursor->references <= 0) {
+                delete mCursor;
+            }
+        }
     };
 }
 

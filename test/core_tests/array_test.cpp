@@ -2,45 +2,31 @@
 
 #include "array.h"
 
-#define ARRAY_SIZE 10
-#define ARRAY_CONTENT {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-
 using core::Array;
 
-class ArrayFixture : public ::testing::Test {
-protected:
-    virtual void TearDown() {
+TEST(Array, Size) {
+    Array<int> array;
+    EXPECT_EQ(array.size(), 0);
 
-    }
+    array.resize(10);
+    EXPECT_EQ(array.size(), 10);
 
-    virtual void SetUp() {
-        resizedArray.resize(ARRAY_SIZE);
-        resizedArray.resize(ARRAY_SIZE * 2);
-        resizedArray.resize(ARRAY_SIZE);
+    array.resize(5);
+    EXPECT_EQ(array.size(), 5);
 
-        for (int i = 0; i < ARRAY_SIZE; ++i) {
-            filledArray[i] = content[i];
-        }
-    }
-
-public:
-
-    Array<int> emptyArray;
-    Array<int> resizedArray;
-    Array<int> filledArray = Array<int>(10);
-
-    int content[ARRAY_SIZE] = ARRAY_CONTENT;
-};
-
-TEST_F(ArrayFixture, array_size) {
-    EXPECT_EQ(emptyArray.size(), 0);
-    EXPECT_EQ(resizedArray.size(), ARRAY_SIZE);
-    EXPECT_EQ(filledArray.size(), ARRAY_SIZE);
+    array.resize(0);
+    EXPECT_EQ(array.size(), 0);
 }
 
-TEST_F(ArrayFixture, array_content) {
-    for (int i = 0; i < ARRAY_SIZE; ++i) {
-        EXPECT_EQ(filledArray[i], content[i]);
+TEST(Array, Content) {
+    Array<int> array(10);
+
+    for (int i = 0; i < 10; i++) {
+        array[i] = (i + 30) * 23 % 11;
+    }
+
+    for (int i = 0; i < 10; ++i) {
+        EXPECT_EQ(array[i], (i + 30) * 23 % 11);
     }
 }
 

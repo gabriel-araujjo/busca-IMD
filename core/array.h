@@ -95,8 +95,12 @@ template <typename Element>
 void Array<Element>::resize(unsigned int newSize) {
     if (mData == nullptr)
         mData = new Element[newSize];
-    else
+    else if (newSize)
         mData = (Element *) realloc(mData, newSize);
+    else {
+        delete mData;
+        mData = nullptr;
+    }
 
     mSize = newSize;
 }

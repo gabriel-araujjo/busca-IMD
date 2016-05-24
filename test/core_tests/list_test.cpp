@@ -2,33 +2,75 @@
 
 #include "list.h"
 
-using core::List
+#define LIST_SIZE 10
 
-class ListFixure : public ::testing::Test {
-protected:
-    virtual void TearDown() {
+using core::List;
+
+
+// Ctrl + Shift + F10
+
+TEST(List, Insert) {
+    List<int> list;
+    int values[] = {0, 1, 2, 3, 5, 6, 7, 8, 9, 10};
+    for(int i = 0; i < 10; i++){
+        list.add(values[i]);
+    }
+    list.add(4, 4);
+    EXPECT_EQ(list.size(), 11);
+    for (int i = 0; i < 11; i++) {
+        EXPECT_EQ(list.get(i), i);
+    }
+}
+
+TEST(List, Size) {
+    List<int> list;
+    EXPECT_EQ(list.size(), 0);
+    list.add(2);
+    EXPECT_EQ(list.size(), 1);
+    list.add(3);
+    EXPECT_EQ(list.size(), 2);
+}
+
+TEST(List, Removal) {
+    List<int> list;
+    for(int i = 0; i < LIST_SIZE; i++){
+        list.add(i);
 
     }
-
-    virtual void SetUp() {
+    for (int i = 0; i < LIST_SIZE; ++i) {
+        EXPECT_EQ(list.size(), LIST_SIZE - i);
+        EXPECT_TRUE(list.remove(i));
     }
 
-public:
+    EXPECT_EQ(list.size(), 0);
+}
+
+TEST(List, Access) {
+    List<int> list;
+    for(int i = 0; i < LIST_SIZE; i++){
+        list.add(i);
+
+    }
+    for (int i = 0; i < LIST_SIZE; ++i) {
+        EXPECT_EQ(list.get(i), i);
+    }
+}
+
+TEST(List, Iterator) {
+
+    EXPECT_EQ(0, 1);
 
     List<int> list;
-};
-
-TEST_F(ArrayFixture, array_size) {
-    EXPECT_EQ(emptyArray.size(), 0);
-    EXPECT_EQ(resizedArray.size(), ARRAY_SIZE);
-    EXPECT_EQ(filledArray.size(), ARRAY_SIZE);
-}
-
-TEST_F(ArrayFixture, array_content) {
-    for (int i = 0; i < ARRAY_SIZE; ++i) {
-        EXPECT_EQ(filledArray[i], content[i]);
+    for(int i = 0; i < LIST_SIZE; i++) {
+        list.add(i);
     }
+
+//    list.iterator();
+
+//    int count = 0;
+//    for (Iterator<int> iter = list.iterator(); iter.isNotEnd(); ++iter) {
+//        EXPECT_EQ(*iter, count++);
+//        if (count >= LIST_SIZE) break;
+//    }
 }
-
-
 
