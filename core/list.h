@@ -5,8 +5,6 @@
 #ifndef BUSCA_IMD_LIST_H
 #define BUSCA_IMD_LIST_H
 
-#define INDEX_OF_BOUND_EXCEPTION
-
 #include "iterator.h"
 
 using core::Iterator;
@@ -60,9 +58,9 @@ namespace core {
             ListIterator(ListIterator & other);
             virtual ~ListIterator() { }
 
-            bool isEnd();
-            ListIterator &operator++();
-            Element &operator*();
+            virtual bool isEnd();
+            virtual ListIterator &operator++();
+            virtual Element &operator*();
         };
     };
 

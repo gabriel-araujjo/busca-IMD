@@ -3,6 +3,7 @@
 //
 
 #include "list.h"
+#include "definitions.h"
 
 using namespace core;
 

@@ -9,11 +9,11 @@ namespace core {
     template <typename Element>
     class Iterator {
     public:
-        Element operator*();
+        virtual Element operator*() = 0;
 
-        Iterator<Element> & operator++();
+        virtual Iterator<Element> & operator++() = 0;
 
-        bool isEnd();
+        virtual bool isEnd() = 0;
     };
 }
 

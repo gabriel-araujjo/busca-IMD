@@ -1,0 +1,10 @@
+//
+// Created by gabriel on 5/22/16.
+//
+
+#ifndef BUSCA_IMD_DEFINITIONS_H
+#define BUSCA_IMD_DEFINITIONS_H
+
+#define INDEX_OF_BOUND_EXCEPTION
+
+#endif //BUSCA_IMD_DEFINITIONS_H
