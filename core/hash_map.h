@@ -6,16 +6,39 @@
 #define BUSCA_IMD_HASH_MAP_H
 
 #include "array.h"
+#include "iterator.h"
 
-template<typename Key, typename Value>
-typedef struct tpHashMap {
-    Array<Key> keys;
-    Array<Value> values;
-    int size;
-} * HashMap;
+namespace core {
 
-namespace HashMap {
-    HashMap Create();
+    template<typename Key, typename Value>
+    class HashMap {
+    public:
+        typedef struct Entry {
+            Key * key;
+            Value * value;
+            int frequency;
+            Entry * next;
+        } * ptrEntry;
+
+    private:
+        Array<ptrEntry> mEntries;
+        int mSize;
+
+        void resizeIfNecessary();
+
+    public:
+        HashMap();
+        HashMap(const HashMap & other);
+        ~HashMap();
+
+        bool put(Key &key, Value &value);
+        bool get(Key &key);
+        Value remove(Key &key);
+        int size();
+
+        Iterator<Entry> iterator();
+
+    };
 }
 
 #endif //BUSCA_IMD_HASH_MAP_H

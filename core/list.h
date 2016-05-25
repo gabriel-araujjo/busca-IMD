@@ -8,7 +8,6 @@
 #define INDEX_OF_BOUND_EXCEPTION
 
 #include "iterator.h"
-#include "iostream"
 
 using core::Iterator;
 
@@ -25,13 +24,13 @@ namespace core {
         } * Node;
 
         class ListCursor : public Iterator<Element>::Cursor {
-            const List list;
+            const List * list;
             Node cursor;
         public:
             /**
              * Constructors/destructor
              */
-            ListCursor(const List<Element> &list);
+            ListCursor(const List<Element> * list);
             ListCursor(ListCursor & other);
 
             virtual bool isNotEnd();
@@ -61,7 +60,7 @@ namespace core {
         bool remove(Element element);
         Element get(int index);
         int size();
-        void iterator();
+        Iterator<Element> iterator() const ;
 
 
     private:
@@ -88,9 +87,12 @@ List<Element>::List() {
 template <typename Element>
 List<Element>::List(const List<Element> & other) {
     init();
-//    for(Iterator<Element> iterator = other.iterator(); iterator.isNotEnd(); ++iterator) {
-//        add(*iterator);
-//    }
+
+    Iterator<Element> iterator = other.iterator();
+    while (iterator.isNotEnd()) {
+        add(*iterator);
+        ++iterator;
+    }
 }
 
 /**
@@ -119,6 +121,7 @@ void List<Element>::init() {
     mLast = new struct tpNode({nullptr, nullptr, nullptr});
     mFirst->next = mLast;
     mLast->prev = mFirst;
+
     mSize = 0;
 }
 
@@ -126,9 +129,9 @@ void List<Element>::init() {
  * Obtem o iterador da lista
  */
 template <typename Element>
-void List<Element>::iterator() {
-    List<Element>::ListCursor * cursor = new List<Element>::ListCursor(*this);
-//    return Iterator<Element>(cursor);
+Iterator<Element> List<Element>::iterator() const {
+    List<Element>::ListCursor * cursor = new List<Element>::ListCursor(this);
+    return Iterator<Element>(cursor);
 }
 
 
@@ -140,21 +143,7 @@ bool List<Element>::add(Element element, int index) {
         return false;
 
     Node node = new tpNode;
-
-    // Checagem neurótica para saber se conseguiu criar o nó
-    if (!node)
-        return false;
-
     node->element = new Element(element);
-
-
-    // Checagem neurótica para saber se conseguiu criar o elemento
-    if (!node->element) {
-
-        // Deleta o nó alocado para evitar memory leak
-        delete node;
-        return false;
-    }
 
     // Ajusta os links entre os nós
     node->next = cursor;
@@ -240,32 +229,28 @@ bool List<Element>::remove(Element element) {
  * ITERADOR DE LISTA
  ******************************************************************/
 template <typename Element>
-List<Element>::ListCursor::ListCursor(const List<Element> &list)
-        : list(list), cursor(list.mFirst->next) {
-    std::cout << "contructor iterator (list)";
+List<Element>::ListCursor::ListCursor(const List<Element> *list)
+        : list(list), cursor(list->mFirst->next) {
 }
 
 template <typename Element>
 List<Element>::ListCursor::ListCursor(List<Element>::ListCursor &other)
         : list(other.list), cursor(other.cursor) {
-    std::cout << "constructor iterator (iterator)";
 }
 
 template <typename Element>
 bool List<Element>::ListCursor::isNotEnd() {
-    return cursor != list.mLast;
+    return cursor->next != nullptr;
 }
 
 template <typename Element>
 void List<Element>::ListCursor::next() {
-    std::cout << "operator ++";
-    if (isNotEnd()) cursor = cursor->next;
+    if (cursor->next) cursor = cursor->next;
 }
 
 
 template <typename Element>
 Element & List<Element>::ListCursor::get() {
-    std::cout << "operator *";
     return *(cursor->element);
 }
 

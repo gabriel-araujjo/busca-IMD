@@ -12,7 +12,7 @@ namespace core {
         class Cursor {
         public:
             int references = 0;
-            virtual Element & get();
+            virtual Element & get() = 0;
             virtual void next() = 0;
             virtual bool isNotEnd() = 0;
         };
@@ -23,21 +23,21 @@ namespace core {
     public:
 
         Iterator(Cursor * cursor) {
-//            mCursor = cursor;
-//            mCursor->references++;
+            mCursor = cursor;
+            mCursor->references++;
         }
 
         Iterator(const Iterator<Element> & other) {
-//            mCursor = other.mCursor;
-//            mCursor->references++;
+            mCursor = other.mCursor;
+            mCursor->references++;
         }
 
         Element & operator*() {
-//            return mCursor->get();
+            return mCursor->get();
         };
 
         Iterator<Element> & operator++() {
-//            mCursor->next();
+            mCursor->next();
             return *(this);
         };
 

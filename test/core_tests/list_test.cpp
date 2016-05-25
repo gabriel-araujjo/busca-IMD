@@ -42,6 +42,8 @@ TEST(List, Removal) {
         EXPECT_TRUE(list.remove(i));
     }
 
+    EXPECT_FALSE(list.remove(0));
+
     EXPECT_EQ(list.size(), 0);
 }
 
@@ -58,19 +60,42 @@ TEST(List, Access) {
 
 TEST(List, Iterator) {
 
-    EXPECT_EQ(0, 1);
-
     List<int> list;
+
+
+    // Não pode iterar numa lista vazia
+    for (Iterator<int> iter = list.iterator(); iter.isNotEnd();) {
+        FAIL();
+    }
+
     for(int i = 0; i < LIST_SIZE; i++) {
         list.add(i);
     }
 
-//    list.iterator();
+    int count = 0;
+    for (Iterator<int> iter = list.iterator(); iter.isNotEnd(); ++iter) {
 
-//    int count = 0;
-//    for (Iterator<int> iter = list.iterator(); iter.isNotEnd(); ++iter) {
-//        EXPECT_EQ(*iter, count++);
-//        if (count >= LIST_SIZE) break;
-//    }
+        EXPECT_EQ(*iter, count++);
+        if (count > LIST_SIZE) {
+            //O iterator estorou o tamanho da lista
+            FAIL();
+        }
+    }
+}
+
+TEST(List, CopyConstructor) {
+    List<int> list1;
+    for (int i = 0; i < LIST_SIZE; ++i) {
+        list1.add(i);
+    }
+
+    List<int> list2 = list1;
+    EXPECT_EQ(list1.size(), list2.size());
+    Iterator<int> i1 = list1.iterator(),
+        i2 = list2.iterator();
+    for (; i1.isNotEnd() && i2.isNotEnd(); ++i1, ++i2) {
+        EXPECT_EQ(*i1, *i2);
+        EXPECT_NE(&(*i1), &(*i2));
+    }
 }
 
