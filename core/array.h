@@ -16,6 +16,7 @@ namespace core {
 
         Array();
         Array(unsigned const int initialCapacity);
+        Array(unsigned const int initialCapacity, Element fillWith);
         Array(const Array &other);
         Array(const Element[]);
         ~Array();
@@ -24,12 +25,14 @@ namespace core {
         unsigned int size();
 
         void resize(unsigned int newSize);
+        void resize(unsigned int newSize, Element fillWith);
 
 
         // Obtem ou adiciona um elemento a uma determinada posição no array
         // ou throw INDEX_OUT_OF_BOUND_EXCEPTION caso o índice for menor que zero ou maior que size - 1
         Element& operator[](unsigned int position);
-        const Element& operator[](unsigned int position) const ;
+        const Element& operator[](unsigned int position) const;
+        Array &operator = (const Array & other);
 
     };
 
@@ -47,18 +50,45 @@ Array<Element>::Array() {
 }
 
 template <typename Element>
-Array<Element>::Array(unsigned const int initialCapacity) {
+Array<Element>::Array(unsigned const int initialCapacity, Element fillWith) {
     mData = new Element[initialCapacity];
+    for (unsigned int i = 0; i < initialCapacity; i++) {
+        mData[i] = fillWith;
+    }
     mSize = initialCapacity;
 }
 
 template <typename Element>
 Array<Element>::Array(const Array<Element> &other) {
     mSize = other.mSize;
-    mData = new Element[mSize];
-    for (int i = 0; i <mSize; ++i) {
-        mData[i] = other.mData[i];
+    if (other.mSize) {
+        mData = new Element[mSize];
+        for (int i = 0; i < mSize; ++i) {
+            mData[i] = other.mData[i];
+        }
+    } else {
+        mData == nullptr;
     }
+}
+
+template <typename Element>
+Array<Element>& Array<Element>::operator=(const Array &other) {
+    delete mData;
+    mSize = other.mSize;
+    if (other.mSize) {
+        mData = new Element[mSize];
+        for (int i = 0; i < mSize; ++i) {
+            mData[i] = other.mData[i];
+        }
+    } else {
+        mData == nullptr;
+    }
+}
+
+template <typename Element>
+Array<Element>::Array(unsigned const int initialCapacity) {
+    mData = new Element[initialCapacity];
+    mSize = initialCapacity;
 }
 
 template <typename Element>
@@ -100,6 +130,25 @@ void Array<Element>::resize(unsigned int newSize) {
     else {
         delete mData;
         mData = nullptr;
+    }
+
+    mSize = newSize;
+}
+
+template <typename Element>
+void Array<Element>::resize(unsigned int newSize, Element fillWith) {
+    if (newSize == mSize) return;
+    if (mData == nullptr)
+        mData = new Element[newSize];
+    else if (newSize)
+        mData = (Element *) realloc(mData, newSize * sizeof(Element));
+    else {
+        delete mData;
+        mData = nullptr;
+    }
+
+    for (unsigned int i = mSize; i < newSize; i++) {
+        mData[i] = fillWith;
     }
 
     mSize = newSize;

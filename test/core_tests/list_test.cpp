@@ -5,6 +5,7 @@
 #define LIST_SIZE 10
 
 using core::List;
+using core::Iterator;
 
 
 // Ctrl + Shift + F10
@@ -97,5 +98,31 @@ TEST(List, CopyConstructor) {
         EXPECT_EQ(*i1, *i2);
         EXPECT_NE(&(*i1), &(*i2));
     }
+
+    i1 = list1.iterator();
+}
+
+TEST(List, AssignmentOperator) {
+    List<int> list1, list2;
+    for (int i = 0; i < LIST_SIZE; ++i) {
+        list1.add(i);
+    }
+
+    list2 = list1;
+
+    EXPECT_EQ(list1.size(), list2.size());
+
+    for (int i = 0; i < LIST_SIZE; ++i) {
+        EXPECT_EQ(list1.get(i), list2.get(i));
+    }
+
+
+    list2.add(LIST_SIZE, 0);
+
+    for (int i = 0; i < LIST_SIZE; ++i) {
+        EXPECT_EQ(list1.get(i), list2.get(i+1));
+    }
+
+    EXPECT_EQ(list2.get(0), LIST_SIZE);
 }
 

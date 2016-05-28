@@ -41,6 +41,18 @@ namespace core {
             return *(this);
         };
 
+        Iterator &operator =(const Iterator & other) {
+            if (this != & other) {
+                mCursor->references--;
+                if (mCursor->references <= 0) {
+                    delete mCursor;
+                }
+                mCursor = other.mCursor;
+                mCursor->references++;
+            }
+            return *this;
+        }
+
         bool isNotEnd() {
             mCursor->isNotEnd();
         };
