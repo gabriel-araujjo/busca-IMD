@@ -604,7 +604,9 @@ struct _RTL_CRITICAL_SECTION;
     || GTEST_OS_QNX || GTEST_OS_FREEBSD || GTEST_OS_NACL)
 #endif  // GTEST_HAS_PTHREAD
 
-#if GTEST_HAS_PTHREAD
+//#if GTEST_HAS_PTHREAD
+#if GTEST_HAS_PTHREAD && GTEST_OS_WINDOWS_MINGW
+#undef GTEST_HAS_PTHREAD
 // gtest-port.h guarantees to #include <pthread.h> when GTEST_HAS_PTHREAD is
 // true.
 # include <pthread.h>  // NOLINT

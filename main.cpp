@@ -16,10 +16,9 @@ int main(int argc, char ** argv) {
 //#include <iostream>
 //#include <string.h>
 //
-//#include "test/list_test.h"
+//#include "config/config.h"
 //
 //using namespace std;
-//using namespace test;
 //
 //int main(int argc, char ** argv) {
 //
@@ -27,10 +26,9 @@ int main(int argc, char ** argv) {
 //
 //        if(strcmp(argv[1], "-test") == 0 || strcmp(argv[1], "-t") == 0){//for test purposes
 //            /*
-//             * TESTING THE LIST CLASS
+//             * TESTING THE CONFIG CLASS
 //             */
-//            List_test __TEST;
-//            __TEST.start_test();
+//
 //        }
 //
 //        //search base arguments

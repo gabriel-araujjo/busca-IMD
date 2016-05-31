@@ -9,7 +9,7 @@ set(HEADER_FILES
         hash_map.h
         iterator.h
         list.h
-        )
+        short_string.h)
 
 
 add_library(core STATIC ${HEADER_FILES})
