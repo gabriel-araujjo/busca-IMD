@@ -10,8 +10,8 @@ set(HEADER_FILES
         iterator.h
         list.h
         short_string.h)
+set(SOURCE_FILES
+        short_string.cpp)
 
 
-add_library(core STATIC ${HEADER_FILES})
-
-set_target_properties(core PROPERTIES LINKER_LANGUAGE CXX)
+add_library(core STATIC ${HEADER_FILES} ${SOURCE_FILES})

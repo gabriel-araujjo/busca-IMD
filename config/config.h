@@ -10,38 +10,53 @@
 #include <string.h>
 #include <time.h>
 
+#include "list.h"
 #include "hash_map.h"
 #include "iterator.h"
 #include "short_string.h"
+#include "index.h"
 
-using namespace std;
-using namespace core;
 
 namespace config{
     //this class will read the files inputed by the user, add the properties of this file to the file index and
     //will populate the word hash map
-    class File{
+    class Config{
     private:
-//        char * searchBasePath = (char*)"C:\\Users\\Pedro Paulo\\Desktop\\BUSCA-IMD\\config\\SearchBase.txt";
-
         typedef struct tpInfos{
-            char * filePath;
+            core::ShortString filePath;
             time_t lastMofified;
             int totalWords;
-            HashMap<short_string, void *> mapOfWords;
+            core::HashMap<core::ShortString, void *> mapOfWords;
         } * Infos;
 
-        bool needToUpdate(char*);
-        char * removeSpecialCharacters(char *);
+        index::Index mIndex;
+        core::List<Infos> mInfoList;
+
+        core::ShortString * readShortString(std::fstream & fileStream);
+        index::FileHashMap * readFileHashMap(std::fstream & fileStream, core::Array<core::ShortString *> & filesLUT);
+        uint16_t readUint16(std::fstream & fileStream);
+        uint32_t readUint32(std::fstream &fileStream);
+        core::Array<core::ShortString *> readFilesPathArray(std::fstream & fileStream);
+        core::List<int> * readListOfOcurrences(std::fstream & fileStream);
+
+        void readIndex(core::ShortString indexPath);
+        void readInfoList(core::ShortString infoListPath);
+
+        bool needToUpdate(core::ShortString filePath);
+        core::ShortString removeSpecialCharacters(core::ShortString word);
+
+        Config(){};
 
     public:
 
-        File();
-        ~File();
+        static Config & getInstance();
 
-        void insertFile(char*);
-        void removeFile(char*);
-        void listFiles(char*);
+        Config(Config const&) = delete;
+        void operator=(Config const&) = delete;
+
+        void insertOrUpdateFile(core::ShortString filePath);
+        void removeFile(core::ShortString filePath);
+        void listFiles(core::ShortString order);
     };
 
 }

@@ -8,22 +8,23 @@
 using core::HashMap;
 using core::List;
 using core::Iterator;
+using core::ShortString;
 
 //just for test
-unsigned int HASH(const short_string & key){
+unsigned int HASH( ShortString * const & key){
     return 0;
 }
 
 //Constructor of the Index class
-index::Index::Index() : WordHashMap(HASH) {
+index::Index::Index() : index::WordHashMap(HASH) {
 
 }
 
 //add an entry to the index (path of the file(AKA:name of the file), word to add, line where this word appears)
-void index::Index::addEntry(short_string filePath, short_string word, int line, bool forceInsertion) {
+void index::Index::addEntry(ShortString * filePath, ShortString * word, int line, bool forceInsertion) {
 
     //get the hashMap containing all the ocurrences of that word on the index file;
-    FileHashMap* fileHash = get(word);
+    index::FileHashMap* fileHash = get(word);
     //list of the ocurrences of that word containing the lines where that word appears
     List<int>* listOfOcurrences;
 
@@ -43,25 +44,25 @@ void index::Index::addEntry(short_string filePath, short_string word, int line, 
 }
 
 //key is the filePath
-FileHashMap* index::Index::get(const short_string &key) {
+index::FileHashMap* index::Index::get(ShortString * const &key) {
 
     //create a hashMap
-    FileHashMap* fileHash = nullptr;
+    index::FileHashMap* fileHash = nullptr;
     try {
         //try to see if
-        fileHash = WordHashMap::get(key);
+        fileHash = index::WordHashMap::get(key);
     } catch (int e){
-        fileHash = new FileHashMap(HASH);
+        fileHash = new index::FileHashMap(HASH);
         put(key, fileHash);
     }
 
     return fileHash;
 }
 
-FileHashMap *index::Index::remove(const short_string &key) {
-    FileHashMap* fileHash = HashMap::remove(key);
+index::FileHashMap *index::Index::remove(ShortString * const &key) {
+    index::FileHashMap* fileHash = HashMap::remove(key);
 
-    Iterator<FileHashMap::Entry> iter = fileHash->iterator();
+    Iterator<index::FileHashMap::Entry> iter = fileHash->iterator();
 
     //iterating through the lists at the hash
     for(;iter.isNotEnd();++iter){
