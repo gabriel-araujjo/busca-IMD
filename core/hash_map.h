@@ -70,10 +70,7 @@ namespace core {
         bool contains(const Key &key);
         int size() const ;
 
-        // TODO: put this method outside
-        Iterator<Entry> iterator() const {
-            return Iterator<Entry>(new HashMapCursor(this));
-        };
+        Iterator<Entry> iterator() const;
 
         HashMap &operator=(const HashMap & other);
     };
@@ -125,6 +122,7 @@ namespace core {
     bool HashMap<Key, Value>::put(Key key, Value value) {
         ptrEntry entry = getEntry(key, true);
         entry->entry.value = value;
+        return true;
     }
 
     template <typename Key, typename Value>
@@ -196,7 +194,7 @@ namespace core {
                 return entry;
             entry = entry->next;
         }
-        if (!entry && forceAddition) {
+        if (forceAddition) {
             entry = new InternalEntry;
             entry->entry.key = key;
             entry->next = (*mEntries)[position];
@@ -339,6 +337,11 @@ namespace core {
     template <typename Key, typename Value>
     typename HashMap<Key, Value>::Entry& HashMap<Key, Value>::HashMapCursor::get() {
         return mCurrentEntry->entry;
+    }
+
+    template <typename Key, typename Value>
+    Iterator<typename HashMap<Key, Value>::Entry> HashMap<Key, Value>::iterator() const {
+        return Iterator<HashMap<Key, Value>::Entry>(new HashMapCursor(this));
     }
 
 }
