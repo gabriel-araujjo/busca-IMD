@@ -57,6 +57,7 @@ namespace core {
 
         bool remove(Element element);
         Element get(int index);
+        bool contains(Element &element);
         int size();
         Iterator<Element> iterator() const ;
 
@@ -198,6 +199,16 @@ namespace core {
         Node node = getNodeAt(index);
         if (!node) throw LIST_INDEX_OF_BOUND_EXCEPTION;
         return *(node->element);
+    }
+
+    template <typename Element>
+    bool List<Element>::contains(Element &element){
+        for(Iterator<Element> iter = this->iterator(); iter.isNotEnd(); ++iter){
+            if(*iter == element){
+                return true;
+            }
+        }
+        return false;
     }
 
     template <typename Element>
