@@ -7,13 +7,17 @@
 
 #include <sys/stat.h>
 #include <fstream>
-#include "config.h"
 #include <unistd.h>
 
-using config::Config;
+#include "config.h"
+#include "list.h"
+
+using busca_imd_core::Array;
+using busca_imd_config::Config;
+using busca_imd_core::List;
 using std::fstream;
 using std::ios;
-using core::ShortString;
+using busca_imd_core::ShortString;
 
 
 Config::Config() {
@@ -35,11 +39,13 @@ Config::Config() {
         indexWords.close();
     }
 
+    ShortString filePath(INDEX_FILE_PATH);
     //read the index to fullfill the mInfoList
-    readInfoList(INDEX_FILE_PATH);
+    readInfoList(filePath);
 
     //read the index to fullfill the mIndex
-    readIndex(INDEX_WORD_PATH);
+    filePath = INDEX_WORD_PATH;
+    readIndex(filePath);
 }
 
 void Config::insertOrUpdateFile(ShortString filePath) {
@@ -62,7 +68,7 @@ bool Config::needToUpdate(ShortString fileName) {
     //get last modified data
     struct stat attrib;
     //load the struct
-    stat(fileName, &attrib);
+    stat(fileName.asCharArray(), &attrib);
     //get the last modified data
 //    if(attrib.st_ctime != /*lastModifiedDate from the file_index*/){
 //        //update
@@ -76,18 +82,20 @@ bool Config::needToUpdate(ShortString fileName) {
 }
 
 //remove special characters from the words
-ShortString Config::removeSpecialCharacters(ShortString wordToTrim) {
-    char * word_final = new char();
-    int i, c;
-//    for(i = 0, c = 0; i < strlen(wordToTrim); i++){
-//        if(isalnum(wordToTrim[i])){
-//            word_final[c] = wordToTrim[i];
-//            c++;
-//        }
-//    }
-    word_final[c] = '\0';
+void Config::removeSpecialCharacters(ShortString & wordToTrim) {
+    List<char> trimmedCharList;
+    const char * rawWord = wordToTrim.asCharArray();
+    const uint16_t length = wordToTrim.length();
+    char c;
+    int i;
 
-    return word_final;
+    for(i = 0, c = rawWord[0]; i < length; ++i, c = rawWord[i]) {
+        if (isalnum(c)) {
+            trimmedCharList.add(c);
+        }
+    }
+
+    wordToTrim = trimmedCharList;
 }
 
 Config &Config::getInstance() {
@@ -95,11 +103,11 @@ Config &Config::getInstance() {
     return instance;
 }
 
-void Config::readIndex(core::ShortString indexPath) {
+void Config::readIndex(busca_imd_core::ShortString indexPath) {
     Array<ShortString *> filesPathArray;
     fstream wordFileIndex;
 
-    wordFileIndex.open(indexPath.value, ios::binary);
+    wordFileIndex.open(indexPath.asCharArray(), ios::binary);
 
     if(!wordFileIndex.is_open())
         return;
@@ -113,23 +121,24 @@ void Config::readIndex(core::ShortString indexPath) {
     }
 }
 
-core::ShortString * Config::readShortString(std::fstream & fileStream) {
-    ShortString * shortString = new ShortString;
+busca_imd_core::ShortString * Config::readShortString(std::fstream & fileStream) {
+    uint16_t length = readUint16(fileStream);
+    char * value = new char(length);
+    fileStream.read(value, length);
 
-    fileStream.read((char *)shortString->length, sizeof(shortString->length));
-    shortString->value = new char[shortString->length];
-    fileStream.read(shortString->value, shortString->length);
-    return shortString;
+    ShortString * result = new ShortString(value);
+    delete value;
+    return result;
 }
 
-index::FileHashMap *Config::readFileHashMap(std::fstream &fileStream, Array<ShortString *> & filesLUT) {
+busca_imd_index::FileHashMap *Config::readFileHashMap(std::fstream &fileStream, Array<ShortString *> & filesLUT) {
 
-    index::FileHashMap * fileHashMap = new index::FileHashMap;
+    busca_imd_index::FileHashMap * fileHashMap = new busca_imd_index::FileHashMap;
 
     uint16_t size = readUint16(fileStream);
 
     for(unsigned int i = 0; i < size; i++){
-        fileHashMap->put(filesLUT[readUint16(fileStream)], readListOfOcurrences(fileStream));
+        fileHashMap->put(filesLUT[readUint16(fileStream)], readListOfOccurrences(fileStream));
     }
 
     return fileHashMap;
@@ -149,24 +158,29 @@ uint32_t Config::readUint32(std::fstream &fileStream) {
 }
 
 
-core::Array<core::ShortString *> Config::readFilesPathArray(std::fstream &fileStream) {
+busca_imd_core::Array<busca_imd_core::ShortString *> Config::readFilesPathArray(std::fstream &fileStream) {
 
-    return core::Array<ShortString *>();
+    return busca_imd_core::Array<ShortString *>();
 }
 
-core::List<int> * Config::readListOfOcurrences(std::fstream &fileStream) {
+busca_imd_core::List<int> * Config::readListOfOccurrences(std::fstream &fileStream) {
 
-    core::List<int> * listOfOcurrences = new core::List<int>;
+    busca_imd_core::List<int> * listOfOccurrences = new busca_imd_core::List<int>;
 
     uint32_t size = readUint32(fileStream);
 
     for(uint32_t i = 0; i < size; i++){
-        uint32_t lineOfOcurrence = readUint32(fileStream);
-        listOfOcurrences->add(lineOfOcurrence);
+        uint32_t lineOfOccurrence = readUint32(fileStream);
+        listOfOccurrences->add(lineOfOccurrence);
     }
 
-    return listOfOcurrences;
+    return listOfOccurrences;
 }
+
+void Config::readInfoList(busca_imd_core::ShortString infoListPath) {
+
+}
+
 
 
 

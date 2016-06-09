@@ -4,8 +4,8 @@
 
 #define LIST_SIZE 10
 
-using core::List;
-using core::Iterator;
+using busca_imd_core::List;
+using busca_imd_core::Iterator;
 
 
 // Ctrl + Shift + F10
@@ -65,7 +65,7 @@ TEST(List, Iterator) {
 
 
     // Não pode iterar numa lista vazia
-    for (Iterator<int> iter = list.iterator(); iter.isNotEnd();) {
+    for (Iterator<int> iter = list.begin(); iter.isNotEnd();) {
         FAIL();
     }
 
@@ -74,7 +74,7 @@ TEST(List, Iterator) {
     }
 
     int count = 0;
-    for (Iterator<int> iter = list.iterator(); iter.isNotEnd(); ++iter) {
+    for (Iterator<int> iter = list.begin(); iter.isNotEnd(); ++iter) {
 
         EXPECT_EQ(*iter, count++);
         if (count > LIST_SIZE) {
@@ -92,14 +92,14 @@ TEST(List, CopyConstructor) {
 
     List<int> list2 = list1;
     EXPECT_EQ(list1.size(), list2.size());
-    Iterator<int> i1 = list1.iterator(),
-        i2 = list2.iterator();
+    Iterator<int> i1 = list1.begin(),
+        i2 = list2.begin();
     for (; i1.isNotEnd() && i2.isNotEnd(); ++i1, ++i2) {
         EXPECT_EQ(*i1, *i2);
         EXPECT_NE(&(*i1), &(*i2));
     }
 
-    i1 = list1.iterator();
+    i1 = list1.begin();
 }
 
 TEST(List, AssignmentOperator) {

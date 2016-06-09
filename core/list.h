@@ -9,7 +9,7 @@
 
 #include "iterator.h"
 
-namespace core {
+namespace busca_imd_core {
 
     template <typename Element>
     class List {
@@ -28,17 +28,19 @@ namespace core {
             /**
              * Constructors/destructor
              */
-            ListCursor(const List<Element> * list);
+            ListCursor(const List<Element> * list, bool end = false);
             ListCursor(ListCursor & other);
 
             virtual bool isNotEnd();
             virtual void next();
             virtual Element &get();
+            virtual bool samePosition(typename Iterator<Element>::Cursor * const other);
         };
 
         int mSize;
         Node mFirst;
         Node mLast;
+        Iterator<Element> * mEndIterator;
 
         void init();
         Node getNodeAt(int index);
@@ -58,8 +60,9 @@ namespace core {
         bool remove(Element element);
         Element get(int index);
         bool contains(Element &element);
-        int size();
-        Iterator<Element> iterator() const ;
+        int size()const;
+        Iterator<Element> begin() const;
+        Iterator<Element>& end() const;
 
         List & operator=(const List & other);
 
@@ -87,7 +90,7 @@ namespace core {
     List<Element>::List(const List<Element> & other) {
         init();
 
-        Iterator<Element> iterator = other.iterator();
+        Iterator<Element> iterator = other.begin();
         while (iterator.isNotEnd()) {
             add(*iterator);
             ++iterator;
@@ -133,6 +136,7 @@ namespace core {
  */
     template <typename Element>
     List<Element>::~List() {
+        delete mEndIterator;
         Node markedForDeathNode, cursor = mFirst;
 
         do {
@@ -156,15 +160,21 @@ namespace core {
         mLast->prev = mFirst;
 
         mSize = 0;
+        mEndIterator = new Iterator<Element>(new ListCursor(this, true));
     }
 
 /**
  * Obtem o iterador da lista
  */
     template <typename Element>
-    Iterator<Element> List<Element>::iterator() const {
+    Iterator<Element> List<Element>::begin() const {
         List<Element>::ListCursor * cursor = new List<Element>::ListCursor(this);
         return Iterator<Element>(cursor);
+    }
+
+    template <typename Element>
+    Iterator<Element>& List<Element>::end() const {
+        return *mEndIterator;
     }
 
 
@@ -190,7 +200,7 @@ namespace core {
     }
 
     template <typename Element>
-    int List<Element>::size() {
+    int List<Element>::size()const {
         return mSize;
     }
 
@@ -203,8 +213,8 @@ namespace core {
 
     template <typename Element>
     bool List<Element>::contains(Element &element){
-        for(Iterator<Element> iter = this->iterator(); iter.isNotEnd(); ++iter){
-            if(*iter == element){
+        for(Element e : *this){
+            if(e == element){
                 return true;
             }
         }
@@ -272,8 +282,8 @@ namespace core {
  * ITERADOR DE LISTA
  ******************************************************************/
     template <typename Element>
-    List<Element>::ListCursor::ListCursor(const List<Element> *list)
-            : list(list), cursor(list->mFirst->next) {
+    List<Element>::ListCursor::ListCursor(const List<Element> *list, bool end)
+            : list(list), cursor(end ? list->mLast : list->mFirst->next) {
     }
 
     template <typename Element>
@@ -295,6 +305,11 @@ namespace core {
     template <typename Element>
     Element & List<Element>::ListCursor::get() {
         return *(cursor->element);
+    }
+
+    template <typename Element>
+    bool List<Element>::ListCursor::samePosition(typename Iterator<Element>::Cursor * const other) {
+        return cursor == ((List<Element>::ListCursor *) other)->cursor;
     }
 }
 

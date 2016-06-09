@@ -2,7 +2,7 @@
 
 #include "array.h"
 
-using core::Array;
+using busca_imd_core::Array;
 
 TEST(Array, Size) {
     Array<int> array;

@@ -1,0 +1,1 @@
+configure_file(cases_config.h.in ${CMAKE_BINARY_DIR}/generated/cases_config.h )

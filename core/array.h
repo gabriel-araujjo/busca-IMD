@@ -5,7 +5,7 @@
 #ifndef BUSCA_IMD_ARRAY_H
 #define BUSCA_IMD_ARRAY_H
 
-namespace core {
+namespace busca_imd_core {
     template <typename Element>
     class Array {
         Element * mData;
@@ -21,6 +21,7 @@ namespace core {
         Array(const Element[]);
         ~Array();
 
+        void fill(Element element);
 
         unsigned int size();
 
@@ -36,122 +37,131 @@ namespace core {
 
     };
 
-}
 
 
-//Implementation
+    //Implementation
 
-using core::Array;
-
-template <typename Element>
-Array<Element>::Array() {
-    mData = nullptr;
-    mSize = 0;
-}
-
-template <typename Element>
-Array<Element>::Array(unsigned const int initialCapacity, Element fillWith) {
-    mData = new Element[initialCapacity];
-    for (unsigned int i = 0; i < initialCapacity; i++) {
-        mData[i] = fillWith;
-    }
-    mSize = initialCapacity;
-}
-
-template <typename Element>
-Array<Element>::Array(const Array<Element> &other) {
-    mSize = other.mSize;
-    if (other.mSize) {
-        mData = new Element[mSize];
-        for (int i = 0; i < mSize; ++i) {
-            mData[i] = other.mData[i];
-        }
-    } else {
-        mData == nullptr;
-    }
-}
-
-template <typename Element>
-Array<Element>& Array<Element>::operator=(const Array &other) {
-    delete mData;
-    mSize = other.mSize;
-    if (other.mSize) {
-        mData = new Element[mSize];
-        for (int i = 0; i < mSize; ++i) {
-            mData[i] = other.mData[i];
-        }
-    } else {
-        mData == nullptr;
-    }
-}
-
-template <typename Element>
-Array<Element>::Array(unsigned const int initialCapacity) {
-    mData = new Element[initialCapacity];
-    mSize = initialCapacity;
-}
-
-template <typename Element>
-Array<Element>::~Array() {
-    delete mData;
-    mSize = 0;
-}
-
-template <typename Element>
-unsigned int Array<Element>::size() {
-    return mSize;
-}
-
-template <typename Element>
-Array<Element>::Array(const Element *const elements) {
-    mSize = (sizeof(elements) / sizeof(*elements));
-    mData = new Element[mSize];
-    for (int i = 0; i <mSize; ++i) {
-        mData[i] = elements[i];
-    }
-}
-
-template <typename Element>
-Element &Array<Element>::operator[](unsigned int position) {
-    return mData[position];
-}
-
-template <typename Element>
-const Element &Array<Element>::operator[](unsigned int position) const {
-    return mData[position];
-}
-
-template <typename Element>
-void Array<Element>::resize(unsigned int newSize) {
-    if (mData == nullptr)
-        mData = new Element[newSize];
-    else if (newSize)
-        mData = (Element *) realloc(mData, newSize);
-    else {
-        delete mData;
+    template <typename Element>
+    Array<Element>::Array() {
         mData = nullptr;
+        mSize = 0;
     }
 
-    mSize = newSize;
-}
+    template <typename Element>
+    Array<Element>::Array(unsigned const int initialCapacity, Element fillWith) {
+        mData = new Element[initialCapacity];
+        for (unsigned int i = 0; i < initialCapacity; i++) {
+            mData[i] = fillWith;
+        }
+        mSize = initialCapacity;
+    }
 
-template <typename Element>
-void Array<Element>::resize(unsigned int newSize, Element fillWith) {
-    if (newSize == mSize) return;
-    if (mData == nullptr)
-        mData = new Element[newSize];
-    else if (newSize)
-        mData = (Element *) realloc(mData, newSize * sizeof(Element));
-    else {
+    template <typename Element>
+    Array<Element>::Array(const Array<Element> &other) {
+        mSize = other.mSize;
+        if (other.mSize) {
+            mData = new Element[mSize];
+            for (int i = 0; i < mSize; ++i) {
+                mData[i] = other.mData[i];
+            }
+        } else {
+            mData == nullptr;
+        }
+    }
+
+    template <typename Element>
+    void Array<Element>::fill(Element element) {
+        for (unsigned int i = 0; i < mSize; ++i) {
+            mData[i] = element;
+        }
+    }
+
+    template <typename Element>
+    Array<Element>& Array<Element>::operator=(const Array &other) {
         delete mData;
-        mData = nullptr;
+        mSize = other.mSize;
+        if (other.mSize) {
+            mData = new Element[mSize];
+            for (int i = 0; i < mSize; ++i) {
+                mData[i] = other.mData[i];
+            }
+        } else {
+            mData == nullptr;
+        }
     }
 
-    for (unsigned int i = mSize; i < newSize; i++) {
-        mData[i] = fillWith;
+    template <typename Element>
+    Array<Element>::Array(unsigned const int initialCapacity) {
+        mData = new Element[initialCapacity];
+        mSize = initialCapacity;
     }
 
-    mSize = newSize;
+    template <typename Element>
+    Array<Element>::~Array() {
+        delete mData;
+        mSize = 0;
+    }
+
+    template <typename Element>
+    unsigned int Array<Element>::size() {
+        return mSize;
+    }
+
+    template <typename Element>
+    Array<Element>::Array(const Element *const elements) {
+        mSize = (sizeof(elements) / sizeof(*elements));
+        mData = new Element[mSize];
+        for (int i = 0; i <mSize; ++i) {
+            mData[i] = elements[i];
+        }
+    }
+
+    template <typename Element>
+    Element &Array<Element>::operator[](unsigned int position) {
+        return mData[position];
+    }
+
+    template <typename Element>
+    const Element &Array<Element>::operator[](unsigned int position) const {
+        return mData[position];
+    }
+
+    template <typename Element>
+    void Array<Element>::resize(unsigned int newSize) {
+        if (mData == nullptr)
+            mData = new Element[newSize];
+        else if (newSize)
+            mData = (Element *) realloc(mData, newSize);
+        else {
+            delete mData;
+            mData = nullptr;
+        }
+
+        mSize = newSize;
+    }
+
+    template <typename Element>
+    void Array<Element>::resize(unsigned int newSize, Element fillWith) {
+        if (newSize == mSize) return;
+        if (mData == nullptr)
+            mData = new Element[newSize];
+        else if (newSize)
+            mData = (Element *) realloc(mData, newSize * sizeof(Element));
+        else {
+            delete mData;
+            mData = nullptr;
+        }
+
+        for (unsigned int i = mSize; i < newSize; i++) {
+            mData[i] = fillWith;
+        }
+
+        mSize = newSize;
+    }
+
 }
+
+
+
 
 #endif //BUSCA_IMD_ARRAY_H

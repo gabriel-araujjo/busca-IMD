@@ -15,7 +15,7 @@
 #include "array.h"
 #include "iterator.h"
 
-namespace core {
+namespace busca_imd_core {
 
     template<typename Key, typename Value>
     class HashMap {
@@ -34,26 +34,29 @@ namespace core {
             InternalEntry * next;
         } * ptrEntry;
 
-        class HashMapCursor : public Iterator<HashMap<Key, Value>::Entry>::Cursor {
+        class HashMapCursor : public Iterator<Entry>::Cursor {
             const HashMap<Key, Value> * mHashMap;
             unsigned int mCursor;
-            unsigned int mCoveredValues;
             ptrEntry mCurrentEntry;
         public:
+            unsigned int mCoveredValues;
             /**
              * Constructors/destructor
              */
-            HashMapCursor(const HashMap<Key, Value> * hashMap);
+            HashMapCursor(const HashMap<Key, Value> * hashMap, bool end = false);
             HashMapCursor(HashMapCursor & other);
 
             virtual bool isNotEnd();
             virtual void next();
             virtual Entry &get();
+            virtual bool samePosition(typename Iterator<Entry>::Cursor * const other);
         };
 
         Array<ptrEntry> * mEntries;
-        int mSize;
+        unsigned int mSize;
         HashTp mCalcHash;
+        Iterator<Entry> * mEndIterator;
+        HashMapCursor * mEndCursor;
 
         ptrEntry getEntry(const Key & key, bool forceAddition = false);
         void resizeIfNecessary();
@@ -70,17 +73,21 @@ namespace core {
         bool contains(const Key &key);
         int size() const ;
 
-        Iterator<Entry> iterator() const;
+        Iterator<Entry> begin() const;
+        Iterator<Entry> & end() const;
 
         HashMap &operator=(const HashMap & other);
     };
 
+
+    // Implementation
 
     template <typename Key, typename Value>
     HashMap<Key, Value>::HashMap(HashTp hashFunction) {
         mCalcHash = hashFunction;
         mEntries = new Array<ptrEntry>(HASH_MAP_ENTRIES_MIN_SIZE, nullptr);
         mSize = 0;
+        mEndIterator = new Iterator<Entry>(mEndCursor = new HashMapCursor(this, true));
     }
 
     template <typename Key, typename Value>
@@ -100,11 +107,11 @@ namespace core {
             }
         }
         mSize = other.mSize;
-
-
+        mEndIterator = new Iterator<Entry>(mEndCursor = new HashMapCursor(this, true));
     }
     template <typename Key, typename Value>
     HashMap<Key, Value>::~HashMap() {
+        delete mEndIterator;
         ptrEntry entry;
         for (int i = 0; i < mEntries->size(); ++i) {
             while (entry = (*mEntries)[i]) {
@@ -149,7 +156,7 @@ namespace core {
             (*mEntries)[position] = entry->next;
             Value value = entry->entry.value;
             delete entry;
-            mSize--;
+            mEndCursor->mCoveredValues = --mSize;
             resizeIfNecessary();
             return value;
         }
@@ -161,7 +168,7 @@ namespace core {
                 prev->next = entry->next;
                 Value value = entry->entry.value;
                 delete entry;
-                mSize--;
+                mEndCursor->mCoveredValues = --mSize;
                 resizeIfNecessary();
                 return value;
             }
@@ -200,7 +207,7 @@ namespace core {
             entry->next = (*mEntries)[position];
 
             (*mEntries)[position] = entry;
-            mSize++;
+            mEndCursor->mCoveredValues = ++mSize;
             resizeIfNecessary();
         }
 
@@ -282,11 +289,26 @@ namespace core {
         return *this;
     }
 
+    template <typename Key, typename Value>
+    Iterator<typename HashMap<Key, Value>::Entry> HashMap<Key, Value>::begin() const {
+        return Iterator<Entry>(new HashMapCursor(this));
+    }
+
+    template <typename Key, typename Value>
+    Iterator<typename HashMap<Key, Value>::Entry>& HashMap<Key, Value>::end() const {
+        return *mEndIterator;
+    }
+
+
     // Cursor
 
     template <typename Key, typename Value>
-    HashMap<Key, Value>::HashMapCursor::HashMapCursor(const HashMap<Key, Value> *hashMap) {
+    HashMap<Key, Value>::HashMapCursor::HashMapCursor(const HashMap<Key, Value> *hashMap, bool end) {
         mHashMap = hashMap;
+        if (end) {
+            mCoveredValues = mHashMap->mSize;
+            return;
+        }
         mCoveredValues = 0;
 
         for (mCursor = 0; mCursor < mHashMap->mEntries->size(); mCursor++) {
@@ -331,7 +353,6 @@ namespace core {
             end:
             mCoveredValues++;
         }
-        return;
     }
 
     template <typename Key, typename Value>
@@ -340,9 +361,9 @@ namespace core {
     }
 
     template <typename Key, typename Value>
-    Iterator<typename HashMap<Key, Value>::Entry> HashMap<Key, Value>::iterator() const {
-        return Iterator<HashMap<Key, Value>::Entry>(new HashMapCursor(this));
-    }
+    bool HashMap<Key, Value>::HashMapCursor::samePosition(typename Iterator<HashMap<Key, Value>::Entry>::Cursor * const other) {
+        return mCoveredValues == ((HashMap<Key, Value>::HashMapCursor *)other)->mCoveredValues;
+    };
 
 }
 

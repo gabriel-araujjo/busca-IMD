@@ -1,11 +1,16 @@
 //
 // Created by gabriel on 5/26/16.
 //
+
+#include <iostream>
+
 #include "gtest/gtest.h"
 #include "hash_map.h"
 
-using core::HashMap;
-using core::Iterator;
+using busca_imd_core::HashMap;
+using busca_imd_core::Iterator;
+using std::cout;
+using std::endl;
 
 unsigned int intHash(const int & key) {
     return (unsigned int) key;
@@ -53,7 +58,7 @@ TEST(HashMap, Iterator) {
     HashMap<int, int> hashMap(intHash);
 
     // Não pode iterar numa lista vazia
-    for (Iterator<HashMap<int, int>::Entry> iter = hashMap.iterator(); iter.isNotEnd();) {
+    for (HashMap<int, int>::Entry entry : hashMap) {
         FAIL();
     }
 
@@ -63,9 +68,12 @@ TEST(HashMap, Iterator) {
 
 
     int count = 0;
-    for (Iterator<HashMap<int, int>::Entry> iter = hashMap.iterator(); iter.isNotEnd(); ++iter) {
-        EXPECT_EQ((*iter).value, count++);
+    for (HashMap<int, int>::Entry entry : hashMap) {
+        cout << endl << "(" << entry.key << " -> " << entry.value << ")";
+        EXPECT_EQ(entry.value, count++);
     }
+    EXPECT_EQ(count, hashMap.size());
+    cout << endl;
 }
 
 TEST(HashMap, CopyConstructor) {
@@ -76,8 +84,8 @@ TEST(HashMap, CopyConstructor) {
 
     HashMap<int, int> hashMap2 = hashMap1;
     EXPECT_EQ(hashMap1.size(), hashMap2.size());
-    Iterator<HashMap<int, int>::Entry> i1 = hashMap1.iterator(),
-            i2 = hashMap2.iterator();
+    Iterator<HashMap<int, int>::Entry> i1 = hashMap1.begin(),
+            i2 = hashMap2.begin();
     for (; i1.isNotEnd() && i2.isNotEnd(); ++i1, ++i2) {
         HashMap<int, int >::Entry entry1 = *i1,
                                 entry2 = *i2;
@@ -87,8 +95,8 @@ TEST(HashMap, CopyConstructor) {
     }
 
 
-    i1 = hashMap1.iterator();
-    i2 = hashMap1.iterator();
+    i1 = hashMap1.begin();
+    i2 = hashMap1.begin();
 
     for (; i1.isNotEnd() && i2.isNotEnd(); ++i1, ++i2) {
         EXPECT_EQ((*i1).key, (*i2).key);

@@ -5,12 +5,12 @@
 
 #include "config.h"
 
-using namespace config;
+using namespace busca_imd_config;
 
 TEST(FILE, insertFile){
-    Config file;
+Config file;
 
-    file.insertOrUpdateFile((char *) "C:\\TESTE\\LoremIpsumSmall.txt");
+file.insertOrUpdateFile((char *) "C:\\TESTE\\LoremIpsumSmall.txt");
 }
 
 TEST(FILE, removeFile){

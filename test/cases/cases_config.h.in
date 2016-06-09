@@ -1,0 +1,12 @@
+#ifndef CASES_CONFIG_H
+#define CASES_CONFIG_H
+
+#if defined(WIN32) || defined(_WIN32)
+#define PATH_SEPARATOR "\\"
+#else
+#define PATH_SEPARATOR "/"
+#endif
+
+#define CASES_DIR "@CMAKE_CURRENT_SOURCE_DIR@"
+
+#endif // CASES_CONFIG_H
