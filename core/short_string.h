@@ -35,7 +35,7 @@ namespace busca_imd_core{
 
         ShortString(List<char> const & list);
 
-        ShortString(const char * const word);
+        ShortString(char const * word);
 
         ShortString &operator=(ShortString const & other);
 

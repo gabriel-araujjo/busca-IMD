@@ -39,7 +39,7 @@ namespace busca_imd_core {
         mValue = nullptr;
     }
 
-    ShortString::ShortString(const char *word) {
+    ShortString::ShortString(char const * word) {
         mValue = nullptr;
         copy(word);
     }

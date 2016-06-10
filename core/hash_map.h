@@ -62,6 +62,9 @@ namespace busca_imd_core {
         void resizeIfNecessary();
         unsigned int positionOfKey(const Key &key);
 
+    protected:
+        virtual bool equals(const Key & a, const Key & b);
+
     public:
         HashMap(HashTp hashFunction);
         HashMap(const HashMap<Key, Value> & other);
@@ -152,7 +155,7 @@ namespace busca_imd_core {
             throw HASH_MAP_KEY_NOT_FOUND_EXCEPTION;
         }
 
-        if (entry->entry.key == key) {
+        if (equals(entry->entry.key, key)) {
             (*mEntries)[position] = entry->next;
             Value value = entry->entry.value;
             delete entry;
@@ -164,7 +167,7 @@ namespace busca_imd_core {
         ptrEntry prev;
 
         while (prev = entry, entry = entry->next) {
-            if (entry->entry.key == key) {
+            if (equals(entry->entry.key, key)) {
                 prev->next = entry->next;
                 Value value = entry->entry.value;
                 delete entry;
@@ -197,7 +200,7 @@ namespace busca_imd_core {
         unsigned int position = positionOfKey(key);
         ptrEntry entry = (*mEntries)[position];
         while (entry) {
-            if (entry->entry.key == key)
+            if (equals(entry->entry.key, key))
                 return entry;
             entry = entry->next;
         }
@@ -299,6 +302,11 @@ namespace busca_imd_core {
         return *mEndIterator;
     }
 
+    template<typename Key, typename Value>
+    bool HashMap<Key, Value>::equals(const Key &a, const Key &b) {
+        return a == b;
+    }
+
 
     // Cursor
 
@@ -335,13 +343,11 @@ namespace busca_imd_core {
     template <typename Key, typename Value>
     void HashMap<Key, Value>::HashMapCursor::next() {
         if (mCoveredValues < mHashMap->mSize) {
-            if (mCurrentEntry) {
-                mCurrentEntry = mCurrentEntry->next;
-                mCursor++;
-            }
 
+            mCurrentEntry = mCurrentEntry->next;
 
             if (!mCurrentEntry) {
+                mCursor++;
                 for (; mCursor < mHashMap->mEntries->size(); mCursor++) {
                     while (mCurrentEntry = (*mHashMap->mEntries)[mCursor]) {
 
