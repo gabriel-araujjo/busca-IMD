@@ -16,6 +16,10 @@ unsigned int intHash(const int & key) {
     return (unsigned int) key;
 }
 
+unsigned int intPtrHash(int * const & key) {
+    return key ? *key : 0;
+}
+
 TEST(HashMap, Put) {
     HashMap<int, int> hashMap(intHash);
     for(int i = 0; i< 10; ++i) {
@@ -121,6 +125,22 @@ TEST(HashMap, AssignmentOperator) {
     EXPECT_EQ(hashMap2.get(0), 0);
     EXPECT_EQ(hashMap1.get(1), 10);
     EXPECT_EQ(hashMap2.get(1), -1);
+}
+
+
+TEST(HashMap, DuplicateKeyInsertion) {
+    HashMap<int, int> simpleHashMap(intHash);
+    HashMap<int *, int> pointerHashMap(intPtrHash);
+
+    int i1 = 1, i2 = 1;
+    simpleHashMap.put(i1, i1);
+    simpleHashMap.put(i2, i2);
+
+    pointerHashMap.put(&i1, i1);
+    pointerHashMap.put(&i2, i2);
+
+    EXPECT_EQ(simpleHashMap.size(), 1);
+    EXPECT_EQ(pointerHashMap.size(), 1);
 }
 
 

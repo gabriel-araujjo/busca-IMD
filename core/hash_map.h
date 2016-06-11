@@ -18,6 +18,17 @@
 
 namespace busca_imd_core {
 
+    template <typename Key>
+    bool equals(const Key & a, const Key & b) {
+        return a == b;
+    }
+
+    // Specialization for pointers
+    template <typename Key>
+    bool equals(Key * const & a, Key *const & b) {
+        return *a == *b;
+    }
+
     template<typename Key, typename Value>
     class HashMap {
     public:
@@ -62,9 +73,6 @@ namespace busca_imd_core {
         ptrEntry getEntry(const Key & key, bool forceAddition = false);
         void resizeIfNecessary();
         unsigned int positionOfKey(const Key &key);
-
-    protected:
-        virtual bool equals(const Key & a, const Key & b);
 
     public:
         HashMap(HashTp hashFunction);
@@ -301,13 +309,7 @@ namespace busca_imd_core {
         return *mEndIterator;
     }
 
-    template<typename Key, typename Value>
-    bool HashMap<Key, Value>::equals(const Key &a, const Key &b) {
-        return a == b;
-    }
-
-
-    // Cursor
+    // Cursor Implementation
 
     template <typename Key, typename Value>
     HashMap<Key, Value>::HashMapCursor::HashMapCursor(const HashMap<Key, Value> *hashMap, bool end) {
