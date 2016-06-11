@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include "config.h"
+#include "config_file_utils.h"
 #include "list.h"
 
 using busca_imd_core::Array;
@@ -19,9 +20,7 @@ using std::fstream;
 using std::ios;
 using busca_imd_core::ShortString;
 
-
 Config::Config() {
-
 
     ShortString filePath(INDEX_FILE_PATH);
     //read the index to fullfill the mInfoList
@@ -117,7 +116,7 @@ busca_imd_core::ShortString * Config::readShortString(std::fstream & fileStream)
 
 busca_imd_index::FileHashMap *Config::readFileHashMap(std::fstream &fileStream, Array<ShortString *> & filesLUT) {
 
-    busca_imd_index::FileHashMap * fileHashMap = new busca_imd_index::FileHashMap;
+    busca_imd_index::FileHashMap * fileHashMap = new busca_imd_index::FileHashMap(busca_imd_core::ultraFastHash);
 
     uint16_t size = readUint16(fileStream);
 
@@ -167,16 +166,16 @@ void Config::readInfoList(busca_imd_core::ShortString infoListPath) {
 
 char * getConfigDirPath() {
 
-    char * home = getHomeDir();
-    char * config_dir = new char[strlen(home) + strlen(PATH_SEPARATOR) + strlen(CONFIG_DIR_NAME) + 1];
+    char * home = busca_imd_config::getHomeDir();
+    char * config_dir = new char[strlen(home) + strlen(busca_imd_config::getFileSeparator()) + strlen(CONFIG_DIR_NAME) + 1];
     strcpy(config_dir, home);
-    strcat(config_dir, PATH_SEPARATOR);
+    strcat(config_dir, busca_imd_config::getFileSeparator());
     strcat(config_dir, CONFIG_DIR_NAME);
 
     delete home;
 
-    if(!dirExists(config_dir)){
-        createHiddenDir(config_dir);
+    if(!busca_imd_config::dirExists(config_dir)){
+        busca_imd_config::createHiddenDir(config_dir);
     }
 
     return config_dir;

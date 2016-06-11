@@ -175,6 +175,16 @@ namespace busca_imd_core {
         return hash;
     }
 
+    char *ShortString::asCharArray() {
+
+        char * charToReturn = new char[mLength+1];
+
+        strncpy(charToReturn, mValue, mLength);
+
+        return charToReturn;
+    }
+
+
     std::ostream & operator<<( std::ostream &output,
                                const busca_imd_core::ShortString &ss ) {
         for (int i = 0; i < ss.mLength; ++i) {
