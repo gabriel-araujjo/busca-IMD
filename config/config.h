@@ -15,6 +15,7 @@
 #include "short_string.h"
 #include "index.h"
 
+#define CONFIG_DIR_NAME ".busca_imd"
 
 namespace busca_imd_config{
     //this class will read the files inputed by the user, add the properties of this file to the file index and
@@ -23,12 +24,11 @@ namespace busca_imd_config{
     private:
         typedef struct tpInfos{
             busca_imd_core::ShortString filePath;
-            time_t lastMofified;
+            time_t lastModified;
             int totalWords;
             busca_imd_core::HashMap<busca_imd_core::ShortString, void *> mapOfWords;
         } * Infos;
 
-        busca_imd_index::Index mIndex;
         busca_imd_core::List<Infos> mInfoList;
 
         busca_imd_core::ShortString * readShortString(std::fstream & fileStream);

@@ -2,10 +2,13 @@
 
 #include <iostream>
 #include <string.h>
+#include <sys/stat.h>
 
-using namespace std;
 
 int main(int argc, char ** argv) {
+
+//    cout << "home path = " << getHomeDir() << endl;
+//    cout << "config dir = " << getConfigDirPath() << endl;
 
 //    if(argc > 1){//the user should input at least one argument, otherwise, the program will not peform any action
 //

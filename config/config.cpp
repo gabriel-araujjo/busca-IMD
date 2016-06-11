@@ -21,23 +21,7 @@ using busca_imd_core::ShortString;
 
 
 Config::Config() {
-    //verify if the file index exists or not, if not, create one empty
-    //struct buffer to verify if the file already exists or not
-    struct stat buffer1;
-    struct stat buffer2;
-    //verify if the file exists
-    if((stat(INDEX_FILE_PATH, &buffer1) != 0) ||
-            stat(INDEX_WORD_PATH, &buffer2) != 0){
 
-        //create the file in binary mode
-        fstream indexFile;
-        indexFile.open(INDEX_FILE_PATH, ios::binary);
-        indexFile.close();
-
-        fstream indexWords;
-        indexWords.open(INDEX_WORD_PATH, ios::binary);
-        indexWords.close();
-    }
 
     ShortString filePath(INDEX_FILE_PATH);
     //read the index to fullfill the mInfoList
@@ -181,7 +165,22 @@ void Config::readInfoList(busca_imd_core::ShortString infoListPath) {
 
 }
 
+char * getConfigDirPath() {
 
+    char * home = getHomeDir();
+    char * config_dir = new char[strlen(home) + strlen(PATH_SEPARATOR) + strlen(CONFIG_DIR_NAME) + 1];
+    strcpy(config_dir, home);
+    strcat(config_dir, PATH_SEPARATOR);
+    strcat(config_dir, CONFIG_DIR_NAME);
+
+    delete home;
+
+    if(!dirExists(config_dir)){
+        createHiddenDir(config_dir);
+    }
+
+    return config_dir;
+}
 
 
 

@@ -2,7 +2,7 @@
 #define CASES_CONFIG_H
 
 #if defined(WIN32) || defined(_WIN32)
-#define PATH_SEPARATOR "\\"
+#define FILE_SEPARATOR "\\"
 #else
 #define PATH_SEPARATOR "/"
 #endif
