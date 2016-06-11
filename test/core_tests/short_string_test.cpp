@@ -22,8 +22,6 @@ using busca_imd_core::ultraFastHash;
 double dispersionRate(unsigned int size) {
     static const char * cases_path = CASES_DIR PATH_SEPARATOR "words.cases";
 
-    std::cout << std::endl <<  cases_path << std::endl;
-
     int step = size * 2 / 3;
     Array<uint32_t> target(size, 0);
 
@@ -73,9 +71,6 @@ double dispersionRate(unsigned int size) {
         occupancyMean += c;
     }
 
-    std::cout << std::endl << "size = " << size
-    << std::endl << "occupancy = " << (((double) occupancyMean) / filledSpaces.size()) << " different results in " << step
-    << std::endl << "iterations = " << filledSpaces.size() << std::endl;
 
     return ((double)occupancyMean) / step / filledSpaces.size();
 }
@@ -94,17 +89,11 @@ TEST(ShortString, OtherShortStringConstructor) {
 
     const char * string = "hello world!";
 
-    std::cout << std::endl << "creating source "<< std::endl;
-
     ShortString source(string);
-
-    std::cout << std::endl << "creating ss" << std::endl;
-
     ShortString ss(source);
 
     EXPECT_EQ(ss.length(), source.length());
 
-    std::cout << std::endl << source << " " << ss << std::endl;
     EXPECT_EQ(ss, source);
 }
 
@@ -123,7 +112,6 @@ TEST(ShortString, CharListConstructor) {
     EXPECT_EQ(ss.length(), list.size());
 
 
-    std::cout << std::endl << "ssString = " << ss << std::endl;
     EXPECT_EQ(ss, string);
 
 }

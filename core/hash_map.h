@@ -14,6 +14,7 @@
 
 #include "array.h"
 #include "iterator.h"
+#include "list.h"
 
 namespace busca_imd_core {
 
@@ -71,8 +72,8 @@ namespace busca_imd_core {
         ~HashMap();
 
         bool put(Key key, Value value);
-        Value get(const Key &key);
-        Value remove(const Key &key);
+        virtual Value get(const Key &key);
+        virtual Value remove(const Key &key);
         bool contains(const Key &key);
         int size() const ;
 
@@ -124,8 +125,6 @@ namespace busca_imd_core {
         }
         delete mEntries;
     }
-
-
 
 
     template <typename Key, typename Value>

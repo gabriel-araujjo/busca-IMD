@@ -2,13 +2,14 @@
 // Created by gabriel on 6/9/16.
 //
 
+#include <sstream>
+#include <fstream>
+
 #include "gtest/gtest.h"
 #include "cases_config.h"
 #include "list.h"
 #include "short_string.h"
 #include "hash_map.h"
-#include <sstream>
-#include <fstream>
 #include "index.h"
 
 
@@ -18,36 +19,28 @@ using busca_imd_core::ShortString;
 using busca_imd_index::Index;
 using busca_imd_core::ultraFastHash;
 
-
-void printIndex() {
-    std::cout << std::endl << "printIndex" << std::endl;
-
-    for (auto entry : Index::getInstance()) {
-        std::cout << *entry.key << "-> [";
-
-        for (auto entry2 : *entry.value) {
-            std::cout << *entry2.key << " -> [";
-
-            for (auto line : *entry2.value) {
-                std::cout << " " << line;
-            }
-            std::cout << "], ";
-        }
-
-        std::cout << "]" << std::endl;
-    }
-}
-
-
 class IndexTest : public  ::testing::Test {
 
 
 protected:
-    HashMap<ShortString*, List<ShortString*>> * map = nullptr;
+
+    static HashMap<ShortString*, List<ShortString*>> * & getMap() {
+        static HashMap<ShortString*, List<ShortString*>> * indexMap(nullptr);
+        return indexMap;
+    }
 
     virtual void SetUp() {
 
-        map = new HashMap<ShortString*, List<ShortString*>>(ultraFastHash);
+        if (IndexTest::getMap()) {
+            // the map has already been created
+            return;
+        }
+
+        if (Index::getInstance().size()){
+            FAIL();
+        }
+
+        IndexTest::getMap() = new HashMap<ShortString*, List<ShortString*>>(ultraFastHash);
 
         static const char * cases_path = CASES_DIR PATH_SEPARATOR "index.cases";
 
@@ -55,7 +48,7 @@ protected:
         cases.open(cases_path);
         if(!cases.is_open())
         {
-            std::cout << std::endl << "Não foi possível abrir arquivo " << cases_path << "Programa será terminado!" << std::endl;
+            std::cout << std::endl << "Can't open file " << cases_path << "Test fail!" << std::endl;
             cases.clear( );
             FAIL();
         }
@@ -71,46 +64,24 @@ protected:
                 lineStream >> word;
                 words.add(new ShortString(word.c_str()));
             }
-            map->put(new ShortString(file.c_str()), words);
+            IndexTest::getMap()->put(new ShortString(file.c_str()), words);
         }
 
         cases.close();
     }
-
-    virtual void TearDown() {
-        List<ShortString*> files;
-        for (auto entry : *map) {
-            files.add(entry.key);
-            for (auto word : entry.value) {
-                delete word;
-            }
-        }
-        for (auto file : files) {
-            delete file;
-        }
-        delete map;
-    }
 };
 
 TEST_F(IndexTest, Sanity) {
-    if (map == nullptr) {
+    std::cout << std::endl << "Sanity test" << std::endl;
+    if (IndexTest::getMap() == nullptr) {
         FAIL();
     }
-
-    std::cout << std::endl << "map keys =" << std::endl;
-    for (auto entry : *map) {
-        std::cout << std::endl << *entry.key << "-> [";
-        for (auto word : entry.value) {
-            std::cout << ", " << *word;
-        }
-        std::cout << "]" << std::endl;
-    }
-    std::cout << std::endl;
 }
 
 
 TEST_F(IndexTest, Addition) {
-    for (auto entry : *map) {
+    std::cout << std::endl << "Addition Test" << std::endl;
+    for (auto entry : *IndexTest::getMap()) {
         for (auto word : entry.value) {
             int line = 1;
             Index::getInstance().addEntry(entry.key, word, line);
@@ -119,21 +90,49 @@ TEST_F(IndexTest, Addition) {
             EXPECT_TRUE(Index::getInstance().get(word)->get(entry.key)->contains(line));
         }
     }
-
-    printIndex();
 }
 
 TEST_F(IndexTest, Removing) {
-    std::cout << std::endl << Index::getInstance().size() << std::endl;
+
+    if (Index::getInstance().size() == 0) {
+        for (auto entry : *IndexTest::getMap()) {
+            for (auto word : entry.value) {
+                int line = 1;
+                Index::getInstance().addEntry(entry.key, word, line);
+            }
+        }
+    }
+
+    std::cout << std::endl << "Removing Test" << std::endl;
+
     EXPECT_TRUE(Index::getInstance().size() > 0);
 
-    printIndex();
+    for (auto entry : *IndexTest::getMap()) {
+        Index::getInstance().removeFile(entry.key);
 
-//    for (auto entry : *map) {
-//        Index::getInstance().removeFile(entry.key);
-//    }
+        // No words can contain this file
+        for (auto wordHashEntry : Index::getInstance()) {
+            EXPECT_FALSE(wordHashEntry.value->contains(entry.key));
+        }
+    }
 
-//    printIndex();
+    EXPECT_EQ(Index::getInstance().size(), 0);
+}
 
-    EXPECT_EQ(Index::getInstance().size(), 10);
+TEST_F(IndexTest, Release) {
+    std::cout << std::endl << "Release Test" << std::endl;
+
+    if (Index::getInstance().size() == 0) {
+        for (auto entry : *IndexTest::getMap()) {
+            for (auto word : entry.value) {
+                int line = 1;
+                Index::getInstance().addEntry(entry.key, word, line);
+            }
+        }
+    }
+    EXPECT_TRUE(Index::getInstance().size() > 0);
+
+    Index::getInstance().release();
+
+    EXPECT_EQ(Index::getInstance().size(), 0);
 }

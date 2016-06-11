@@ -57,7 +57,7 @@ TEST(HashMap, Remove) {
 TEST(HashMap, Iterator) {
     HashMap<int, int> hashMap(intHash);
 
-    // Não pode iterar numa lista vazia
+    // It must not iterate over an empty list
     for (HashMap<int, int>::Entry entry : hashMap) {
         FAIL();
     }
@@ -69,11 +69,9 @@ TEST(HashMap, Iterator) {
 
     int count = 0;
     for (HashMap<int, int>::Entry entry : hashMap) {
-        cout << endl << "(" << entry.key << " -> " << entry.value << ")";
         EXPECT_EQ(entry.value, count++);
     }
     EXPECT_EQ(count, hashMap.size());
-    cout << endl;
 }
 
 TEST(HashMap, CopyConstructor) {

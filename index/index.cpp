@@ -17,38 +17,45 @@ namespace busca_imd_index {
     //add an entry to the index (path of the file(AKA:name of the file), word to add, line where this word appears)
     void Index::addEntry(ShortString *filePath, ShortString *word, int line, bool forceInsertion) {
 
-        //get the hashMap containing all the ocurrences of that word on the index file;
-        FileHashMap *fileHash = get(word);
-        //list of the ocurrences of that word containing the lines where that word appears
-        List<int> *listOfOcurrences;
 
-        try {
-            //try to see if the list is nullptr
-            listOfOcurrences = fileHash->get(filePath);
-        } catch (int e) {
-            //if the list is null, them we will create one
-            listOfOcurrences = new List<int>;
-            fileHash->put(filePath, listOfOcurrences);
-        }
-        //if the list doesnt containt the occurence of that word in that line, then we will add this to the list,
-        //otherwise, we dont need to add since the contains(line) will return true, indicating that this word appears
-        //on the file in this line that we are trying to add
-        if (forceInsertion || !listOfOcurrences->contains(line)) {
-            listOfOcurrences->add(line, -1);
+        //list of the occurrences of word in in file
+        List<int> *occurrencesList = getOrCreateOccurrencesList(filePath, word);
+
+
+        //if the list doesn't contain the line, we add it
+        if (forceInsertion || !occurrencesList->contains(line)) {
+            occurrencesList->add(line, -1);
         }
     }
 
-    //get a word of the index
-    FileHashMap *Index::get(ShortString *const &word) {
+    List<int> *Index::getOrCreateOccurrencesList(ShortString *filePath, ShortString *const &word) {
+        //get the hashMap containing all the occurrences of that word on the index file;
+        FileHashMap *fileHash = getOrCreateFileMap(word);
+        //list of the occurrences of the word in file
+        List<int> *occurrencesList;
+
+        try {
+            //try to see if the list is nullptr
+            occurrencesList = fileHash->get(filePath);
+        } catch (int e) {
+            //if the list is null, them we will create one
+            occurrencesList = new List<int>;
+            fileHash->put(filePath, occurrencesList);
+        }
+        return occurrencesList;
+    }
+
+    //get or crete index for word
+    FileHashMap *Index::getOrCreateFileMap(ShortString *const &word) {
 
         //create a hashMap
         FileHashMap *fileHash = nullptr;
         try {
             //try to see if
-            fileHash = WordHashMap::get(word);
+            fileHash = get(word);
         } catch (int e) {
             fileHash = new FileHashMap(ultraFastHash);
-            WordHashMap::put(word, fileHash);
+            put(word, fileHash);
         }
 
         return fileHash;
@@ -64,8 +71,8 @@ namespace busca_imd_index {
         for (WordHashMap::Entry entry :*this) {
             fileHash = entry.value;
             try {
-                List<int> * occurences = fileHash->remove(filePath);
-                delete occurences;
+                List<int> * occurrences = fileHash->remove(filePath);
+                delete occurrences;
             } catch (int ignore) { }
             // Marking this word to remove
             if (!fileHash->size()) {
@@ -96,6 +103,18 @@ namespace busca_imd_index {
     bool Index::equals(busca_imd_core::ShortString * const & a, busca_imd_core::ShortString *const & b) {
         return *a == *b;
     }
+
+    void Index::release() {
+        List<ShortString*> words;
+        for (auto entry : *this) {
+            words.add(entry.key);
+        }
+
+        for (auto word: words) {
+            removeWord(word);
+        }
+    }
+
 
 }
 

@@ -34,12 +34,22 @@ namespace busca_imd_index {
     class Index : public WordHashMap{
 
     private:
+        typedef busca_imd_core::List<int> OccurrencesList;
+        typedef busca_imd_core::ShortString Str;
         Index();
+
+        //get or create a file hash map for word
+        FileHashMap * getOrCreateFileMap(Str *const &word);
+
+        //get or create occurrences for word in file
+        OccurrencesList * getOrCreateOccurrencesList(Str * filePath, Str *const &word);
+
 
     protected:
         virtual bool equals(busca_imd_core::ShortString *const & a, busca_imd_core::ShortString *const & b);
     public:
 
+        // A singleton has neither copy constructor nor assignment operator
         Index(Index const&) = delete;
         void operator=(Index const&) = delete;
 
@@ -48,25 +58,21 @@ namespace busca_imd_index {
 
         //after read the file and seeing if the file really needs to be added, then, we will add
         //the occurrences of that word in the hashMap
-        void addEntry(busca_imd_core::ShortString * filePath, busca_imd_core::ShortString * word, int line, bool forceInsertion = false);
+        void addEntry(Str * filePath, Str * word, int line, bool forceInsertion = false);
 
 
         //remove the occurrences of the word from the hashMap
         //return nullptr
         //internally call Index#remove(busca_imd_core::ShortString * const & word)
-        void removeWord(busca_imd_core::ShortString * const & word);
+        void removeWord(Str * const & word);
 
 
         // Iterate over all words removing files
-        void removeFile(busca_imd_core::ShortString * const & filePath);
+        void removeFile(Str * const & filePath);
 
         //remove the occurrences of the word from the hashMap
-        //return nullptr
-        FileHashMap* remove(busca_imd_core::ShortString * const & word);
-
-        //get the occurrences of the word from the hashMap
-        //it will return all the files that have that word
-        FileHashMap* get(busca_imd_core::ShortString * const & word);
+        //return aways nullptr
+        virtual FileHashMap* remove(Str * const & word);
 
         void release();
     };
