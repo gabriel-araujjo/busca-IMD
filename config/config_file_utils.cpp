@@ -41,7 +41,6 @@ namespace busca_imd_config{
         return home;
     }
 
-
     bool createHiddenDir(const char * path){
 #if defined(WIN32) || defined(_WIN32)
         if(!CreateDirectory(path, nullptr))
@@ -69,8 +68,8 @@ namespace busca_imd_config{
         return stat( path, &info ) == 0;
     }
 
-    void joinPath(char *parent, const char *file){
-        strcat(parent, FILE_SEPARATOR);
+    void joinPath(char * parent, const char * file){
+        strcpy(parent, FILE_SEPARATOR);
         strcat(parent, file);
     }
 

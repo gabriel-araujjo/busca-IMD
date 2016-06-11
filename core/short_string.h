@@ -56,6 +56,8 @@ namespace busca_imd_core{
         friend std::ostream  &operator<<( std::ostream &output,
                                     const ShortString &ss );
 
+        char * asCharArray();
+
         friend uint32_t ultraFastHash(ShortString * const & key);
 
     };
