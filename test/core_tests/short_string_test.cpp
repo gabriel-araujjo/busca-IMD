@@ -20,7 +20,7 @@ using busca_imd_core::Array;
 using busca_imd_core::ultraFastHash;
 
 double dispersionRate(unsigned int size) {
-    static const char * cases_path = CASES_DIR PATH_SEPARATOR "words.cases";
+    static const char * cases_path = CASES_DIR FILE_SEPARATOR "words.cases";
 
     int step = size * 2 / 3;
     Array<uint32_t> target(size, 0);

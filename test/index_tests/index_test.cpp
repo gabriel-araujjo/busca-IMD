@@ -42,7 +42,7 @@ protected:
 
         IndexTest::getMap() = new HashMap<ShortString*, List<ShortString*>>(ultraFastHash);
 
-        static const char * cases_path = CASES_DIR PATH_SEPARATOR "index.cases";
+        static const char * cases_path = CASES_DIR FILE_SEPARATOR "index.cases";
 
         std::ifstream cases;
         cases.open(cases_path);
