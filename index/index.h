@@ -19,6 +19,8 @@
  *
  */
 
+#include <fstream>
+
 #include "hash_map.h"
 #include "list.h"
 #include "short_string.h"
@@ -71,7 +73,13 @@ namespace busca_imd_index {
         //return aways nullptr
         virtual FileHashMap* remove(Str * const & word);
 
-        void release();
+        // Load index from input stream
+        bool load(std::istream &in);
+
+        // save index to output stream
+        bool save(std::ostream &out);
+
+        void releaseData();
     };
 }
 
