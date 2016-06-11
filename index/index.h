@@ -44,9 +44,6 @@ namespace busca_imd_index {
         //get or create occurrences for word in file
         OccurrencesList * getOrCreateOccurrencesList(Str * filePath, Str *const &word);
 
-
-    protected:
-        virtual bool equals(busca_imd_core::ShortString *const & a, busca_imd_core::ShortString *const & b);
     public:
 
         // A singleton has neither copy constructor nor assignment operator

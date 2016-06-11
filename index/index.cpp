@@ -100,10 +100,6 @@ namespace busca_imd_index {
         return index;
     }
 
-    bool Index::equals(busca_imd_core::ShortString * const & a, busca_imd_core::ShortString *const & b) {
-        return *a == *b;
-    }
-
     void Index::release() {
         List<ShortString*> words;
         for (auto entry : *this) {
