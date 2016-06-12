@@ -26,7 +26,7 @@ namespace busca_imd_core {
     // Specialization for pointers
     template <typename Key>
     bool equals(Key * const & a, Key *const & b) {
-        return *a == *b;
+        return a == b || *a == *b;
     }
 
     template<typename Key, typename Value>

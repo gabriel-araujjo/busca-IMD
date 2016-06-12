@@ -4,7 +4,7 @@
 #if defined(WIN32) || defined(_WIN32)
 #define FILE_SEPARATOR "\\"
 #else
-#define PATH_SEPARATOR "/"
+#define FILE_SEPARATOR "/"
 #endif
 
 #define CASES_DIR "@CMAKE_CURRENT_SOURCE_DIR@"

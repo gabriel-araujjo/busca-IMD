@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <sys/stat.h>
+#include <string.h>
 
 #include "config_file_utils.h"
 
@@ -52,7 +53,8 @@ namespace busca_imd_config{
         }
         return true;
 #else
-        return mkdir(path) == 0;
+        // create a dir with rwx rwx r-x permission
+        return mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0 && errno != EEXIST;
 #endif
     }
 

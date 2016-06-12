@@ -20,6 +20,7 @@
  */
 
 #include <fstream>
+#include <stdint.h>
 
 #include "hash_map.h"
 #include "list.h"
@@ -45,6 +46,8 @@ namespace busca_imd_index {
 
         //get or create occurrences for word in file
         OccurrencesList * getOrCreateOccurrencesList(Str * filePath, Str *const &word);
+
+        busca_imd_core::HashMap<Str *, uint16_t> mFilePathUsage;
 
     public:
 
@@ -72,14 +75,14 @@ namespace busca_imd_index {
         //remove the occurrences of the word from the hashMap
         //return aways nullptr
         virtual FileHashMap* remove(Str * const & word);
+//
+        void release();
 
-        // Load index from input stream
-        bool load(std::istream &in);
+        friend std::ostream &operator<<( std::ostream &output,
+                                          const busca_imd_index::Index &index );
 
-        // save index to output stream
-        bool save(std::ostream &out);
-
-        void releaseData();
+        friend std::istream &operator>>( std::istream &input,
+                                         busca_imd_index::Index &index );
     };
 }
 

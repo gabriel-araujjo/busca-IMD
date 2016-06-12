@@ -7,6 +7,8 @@
 
 #define LIST_INDEX_OF_BOUND_EXCEPTION 1
 
+#include <stdint.h>
+
 #include "iterator.h"
 
 namespace busca_imd_core {
@@ -66,7 +68,13 @@ namespace busca_imd_core {
 
         List & operator=(const List & other);
 
-    private:
+        template <typename Type>
+        friend std::ostream  &operator<<( std::ostream &output,
+                                          const List<Type> &list );
+
+        template <typename Type>
+        friend std::istream  &operator>>( std::istream &input,
+                                          List<Type> &list );
 
     };
 
@@ -311,6 +319,48 @@ namespace busca_imd_core {
     bool List<Element>::ListCursor::samePosition(typename Iterator<Element>::Cursor * const other) {
         return cursor == ((List<Element>::ListCursor *) other)->cursor;
     }
+
+    template <typename Element>
+    std::ostream  &operator<<( std::ostream &output,
+                                      const busca_imd_core::List<Element> &list ) {
+        uint16_t listSize = (uint16_t) list.mSize;
+        output.write((char*) &listSize, sizeof(uint16_t));
+        for (auto item : list) {
+            output << item;
+        }
+        return output;
+    }
+
+    template <typename Element>
+    std::istream  &operator>>( std::istream &input,
+                                      busca_imd_core::List<Element> &list ) {
+
+        typename busca_imd_core::List<Element>::Node node, cursor = list.mFirst->next;
+
+        while (cursor != list.mLast) {
+            node = cursor;
+            cursor = cursor->next;
+
+            delete node->element;
+            delete node;
+        }
+
+        list.mFirst->next = list.mLast;
+        list.mLast->prev = list.mFirst;
+
+
+        uint16_t listPosition;
+        input.read((char*) & listPosition, sizeof(uint16_t));
+        while (listPosition) {
+            Element e;
+            input >> e;
+            list.add(e);
+            listPosition--;
+        }
+
+        return input;
+    }
+
 }
 
 #endif //BUSCA_IMD_LIST_H

@@ -187,10 +187,19 @@ namespace busca_imd_core {
 
     std::ostream & operator<<( std::ostream &output,
                                const busca_imd_core::ShortString &ss ) {
-        for (int i = 0; i < ss.mLength; ++i) {
-            output << ss.mValue[i];
-        }
+        output.write((char*) &ss.mLength, sizeof(uint16_t));
+        output.write(ss.mValue, ss.mLength * sizeof(char));
         return output;
+    }
+
+    std::istream & operator>>( std::istream &input,
+                               busca_imd_core::ShortString &ss ) {
+
+        input.read((char*) &ss.mLength, sizeof(uint16_t));
+        ss.mValue = (char *) realloc(ss.mValue, ss.mLength * sizeof(char));
+        input.read(ss.mValue, ss.length());
+
+        return input;
     }
 }
 

@@ -5,9 +5,7 @@
 #ifndef BUSCA_IMD_SHORT_STRING_H
 #define BUSCA_IMD_SHORT_STRING_H
 
-#define TOO_LONG_LIST 1
-
-#include <iostream>
+#include <iosfwd>
 #include <stdint.h>
 #include "list.h"
 
@@ -53,10 +51,13 @@ namespace busca_imd_core{
 
         const uint16_t length() const;
 
+        char * asCharArray();
+
         friend std::ostream  &operator<<( std::ostream &output,
                                     const ShortString &ss );
 
-        char * asCharArray();
+        friend std::istream  &operator>>( std::istream &input,
+                                          ShortString &ss );
 
         friend uint32_t ultraFastHash(ShortString * const & key);
 
