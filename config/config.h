@@ -10,40 +10,40 @@
 #include <string.h>
 #include <time.h>
 
+#include "file_info.h"
 #include "list.h"
 #include "hash_map.h"
 #include "short_string.h"
 #include "index.h"
 
-#define CONFIG_DIR_NAME ".busca_imd"
+#define CONFIG_DIR_NAME "debugimd"
+#define INDEX_FILE_PATH "index_file_imd"
+#define INDEX_WORD_PATH "index_words_imd"
+
+#define NATURAL_ORDER 'i'
+#define WORDS_COUNT_ORDER 't'
+#define ALPHABETICAL_ORDER 'a'
 
 namespace busca_imd_config{
     //this class will read the files inputed by the user, add the properties of this file to the file index and
     //will populate the word hash map
+
     class Config{
     private:
-        typedef struct tpInfos{
-            busca_imd_core::ShortString filePath;
-            time_t lastModified;
-            int totalWords;
-            busca_imd_core::HashMap<busca_imd_core::ShortString, void *> mapOfWords;
-        } * Infos;
 
-        busca_imd_core::List<Infos> mInfoList;
+        char * mInfoListFilePath;
+        char * mIndexFilePath;
+        busca_imd_core::List<FileInfo> mInfoList;
 
-        busca_imd_core::ShortString * readShortString(std::fstream & fileStream);
-        busca_imd_index::FileHashMap * readFileHashMap(std::fstream & fileStream, busca_imd_core::Array<busca_imd_core::ShortString *> & filesLUT);
-        uint16_t readUint16(std::fstream & fileStream);
-        uint32_t readUint32(std::fstream &fileStream);
-        busca_imd_core::Array<busca_imd_core::ShortString *> readFilesPathArray(std::fstream & fileStream);
-        busca_imd_core::List<int> * readListOfOccurrences(std::fstream &fileStream);
+        char * getConfigDirPath();
 
-        void readIndex(busca_imd_core::ShortString indexPath);
-        void readInfoList(busca_imd_core::ShortString infoListPath);
+        void loadIndex();
 
-        bool needToUpdate(busca_imd_core::ShortString filePath);
+        void loadInfoList();
 
-        void removeSpecialCharacters(busca_imd_core::ShortString &word);
+        void persistIndex();
+
+        void persistInfoList();
 
         Config();
 
@@ -56,7 +56,8 @@ namespace busca_imd_config{
 
         void insertOrUpdateFile(busca_imd_core::ShortString filePath);
         void removeFile(busca_imd_core::ShortString filePath);
-        void listFiles(busca_imd_core::ShortString order);
+        busca_imd_core::List<FileInfo> getFiles();
+        void orderFiles(busca_imd_core::List<FileInfo> &files, char order);
     };
 
 }

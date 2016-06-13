@@ -84,6 +84,7 @@ namespace busca_imd_core {
         virtual Value remove(const Key &key);
         bool contains(const Key &key);
         int size() const ;
+        virtual void clear();
 
         Iterator<Entry> begin() const;
         Iterator<Entry> & end() const;
@@ -124,13 +125,7 @@ namespace busca_imd_core {
     template <typename Key, typename Value>
     HashMap<Key, Value>::~HashMap() {
         delete mEndIterator;
-        ptrEntry entry;
-        for (int i = 0; i < mEntries->size(); ++i) {
-            while (entry = (*mEntries)[i]) {
-                (*mEntries)[i] = entry->next;
-                delete entry;
-            }
-        }
+        clear();
         delete mEntries;
     }
 
@@ -267,15 +262,7 @@ namespace busca_imd_core {
 
             mCalcHash = other.mCalcHash;
 
-            ptrEntry entry;
-            for (int i = 0; i < mEntries->size(); ++i) {
-                while (entry = (*mEntries)[i]) {
-                    (*mEntries)[i] = entry->next;
-                    delete entry;
-                }
-            }
-
-
+            clear();
             mEntries->resize(other.mEntries->size(), nullptr);
 
 
@@ -297,6 +284,18 @@ namespace busca_imd_core {
         }
 
         return *this;
+    }
+
+    template <typename Key, typename Value>
+    void HashMap<Key, Value>::clear() {
+        ptrEntry entry;
+        for (int i = 0; i < mEntries->size(); ++i) {
+            while (entry = (*mEntries)[i]) {
+                (*mEntries)[i] = entry->next;
+                delete entry;
+            }
+        }
+        mSize = 0;
     }
 
     template <typename Key, typename Value>

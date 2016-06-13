@@ -32,22 +32,28 @@ namespace busca_imd_index {
     typedef busca_imd_core::HashMap<busca_imd_core::ShortString *, busca_imd_core::List<int>*> FileHashMap;
 
     //hashMap containing the word index (word, FileHashMap)
-    typedef busca_imd_core::HashMap<busca_imd_core::ShortString *, FileHashMap*> WordHashMap;
+    typedef busca_imd_core::HashMap<busca_imd_core::ShortString, FileHashMap*> WordHashMap;
 
     class Index : public WordHashMap{
 
     private:
         typedef busca_imd_core::List<int> OccurrencesList;
         typedef busca_imd_core::ShortString Str;
+
+        struct FilePathHolder{
+            Str * filePathCopy;
+            uint16_t usage;
+        };
+
         Index();
 
         //get or create a file hash map for word
-        FileHashMap * getOrCreateFileMap(Str *const &word);
+        FileHashMap * getOrCreateFileMap(Str &word);
 
         //get or create occurrences for word in file
-        OccurrencesList * getOrCreateOccurrencesList(Str * filePath, Str *const &word);
+        OccurrencesList * getOrCreateOccurrencesList(Str * filePath, Str &word);
 
-        busca_imd_core::HashMap<Str *, uint16_t> mFilePathUsage;
+        busca_imd_core::HashMap<Str *, FilePathHolder*> mFilePathUsage;
 
     public:
 
@@ -60,22 +66,23 @@ namespace busca_imd_index {
 
         //after read the file and seeing if the file really needs to be added, then, we will add
         //the occurrences of that word in the hashMap
-        void addEntry(Str * filePath, Str * word, int line, bool forceInsertion = false);
+        void addEntry(Str & filePath, Str & word, int line, bool forceInsertion = false);
 
 
         //remove the occurrences of the word from the hashMap
         //return nullptr
         //internally call Index#remove(busca_imd_core::ShortString * const & word)
-        void removeWord(Str * const & word);
+        void removeWord(Str const & word);
 
 
         // Iterate over all words removing files
-        void removeFile(Str * const & filePath);
+        void removeFile(Str & filePath);
 
         //remove the occurrences of the word from the hashMap
         //return aways nullptr
-        virtual FileHashMap* remove(Str * const & word);
+        virtual FileHashMap* remove(Str const & word);
 //
+        virtual void clear();
         void release();
 
         friend std::ostream &operator<<( std::ostream &output,

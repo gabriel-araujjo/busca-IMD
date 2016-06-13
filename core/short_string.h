@@ -14,6 +14,7 @@ namespace busca_imd_core{
     class ShortString;
 
     uint32_t ultraFastHash(ShortString * const & key);
+    uint32_t directUltraFastHash(ShortString const & key);
 
 
     class ShortString{
@@ -51,7 +52,9 @@ namespace busca_imd_core{
 
         const uint16_t length() const;
 
-        char * asCharArray();
+        char * asCharArray() const;
+
+        int compare(ShortString const & ss) const;
 
         friend std::ostream  &operator<<( std::ostream &output,
                                     const ShortString &ss );
@@ -59,7 +62,7 @@ namespace busca_imd_core{
         friend std::istream  &operator>>( std::istream &input,
                                           ShortString &ss );
 
-        friend uint32_t ultraFastHash(ShortString * const & key);
+        friend uint32_t directUltraFastHash(ShortString const & key);
 
     };
 }

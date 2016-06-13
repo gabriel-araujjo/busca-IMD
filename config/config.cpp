@@ -1,260 +1,170 @@
 //
 // Created by gabriel on 5/17/16.
 //
-#define INDEX_FILE_PATH "C:\\TESTE\\index_file_imd.bin"
-#define INDEX_WORD_PATH "C:\\TESTE\\index_words_imd.bin"
 
 
-#include <sys/stat.h>
 #include <fstream>
-#include <unistd.h>
 
-#include "config.h"
+#include "index.h"
 #include "config_file_utils.h"
-#include "list.h"
+#include "config.h"
+
 
 using busca_imd_core::Array;
-using busca_imd_config::Config;
 using busca_imd_core::List;
-using std::fstream;
-using std::ios;
 using busca_imd_core::ShortString;
+using busca_imd_index::Index;
 
-Config::Config() {
+namespace busca_imd_config {
 
-    ShortString filePath(INDEX_FILE_PATH);
-    //read the index to fullfill the mInfoList
-    readInfoList(filePath);
+    int wordsCountOrder(FileInfo const &a, FileInfo const &b) {
+        return a.totalWords - b.totalWords;
+    }
 
-    //read the index to fullfill the mIndex
-    filePath = INDEX_WORD_PATH;
-    readIndex(filePath);
-}
+    int alphabeticalOrder(FileInfo const & a, FileInfo const & b) {
+        return a.filePath.compare(b.filePath);
+    }
 
-void Config::insertOrUpdateFile(ShortString filePath) {
-    //it will read the file_index, verify if need to update, if the file isn't on the index or needs to update, insert
-    //the file on the file_index and words_index
-}
+    Config::Config() {
+        std::setlocale(LC_COLLATE, "pt_BR.UTF-8");
+        char *cfgDir = getConfigDirPath();
+        mIndexFilePath = joinPath(cfgDir, INDEX_WORD_PATH);
+        mInfoListFilePath = joinPath(cfgDir, INDEX_FILE_PATH);
+        loadIndex();
+        loadInfoList();
+    }
 
-void Config::removeFile(ShortString fileName) {
+    char * Config::getConfigDirPath() {
 
-}
+        char * home = getHomeDir();
+        char * config_dir = joinPath(home, CONFIG_DIR_NAME);
 
-void Config::listFiles(ShortString order) {
-    //will list the order from the files given an argument
-}
+        delete home;
 
-bool Config::needToUpdate(ShortString fileName) {
-    //verify if the file have the modified date diferent from the modified date on the searchBase or if the file is in the searchBase
-    //if the file isn't in the search base, return true
-    //if the modified date is diferent from the one in the searchBase, return true
-    //get last modified data
-    struct stat attrib;
-    //load the struct
-    stat(fileName.asCharArray(), &attrib);
-    //get the last modified data
-//    if(attrib.st_ctime != /*lastModifiedDate from the file_index*/){
-//        //update
-//        return true;
-//    }//otherwise, the file is the same, the index is already created, no need to update
+        if(!dirExists(config_dir)){
+            createHiddenDir(config_dir);
+        }
 
-    //return false;
+        return config_dir;
+    }
 
-    //returning true for test purposes
-    return true;
-}
-
-//remove special characters from the words
-void Config::removeSpecialCharacters(ShortString & wordToTrim) {
-    List<char> trimmedCharList;
-    const char * rawWord = wordToTrim.asCharArray();
-    const uint16_t length = wordToTrim.length();
-    char c;
-    int i;
-
-    for(i = 0, c = rawWord[0]; i < length; ++i, c = rawWord[i]) {
-        if (isalnum(c)) {
-            trimmedCharList.add(c);
+    void Config::loadIndex() {
+        //If index file does not exist, don't read it
+        if (!fileExists(mIndexFilePath)) return;
+        try {
+            std::ifstream in;
+            in.open(mIndexFilePath, std::ios::in);
+            if (!in.is_open()) {
+                return;
+            }
+            in >> Index::getInstance();
+        } catch (std::ifstream::failure e) {
+            Index::getInstance().release();
         }
     }
 
-    wordToTrim = trimmedCharList;
-}
-
-Config &Config::getInstance() {
-    static Config instance;
-    return instance;
-}
-
-void Config::readIndex(busca_imd_core::ShortString indexPath) {
-    Array<ShortString *> filesPathArray;
-    fstream wordFileIndex;
-
-    wordFileIndex.open(indexPath.asCharArray(), ios::binary);
-
-    if(!wordFileIndex.is_open())
-        return;
-
-    uint16_t size = readUint16(wordFileIndex);
-
-    filesPathArray.resize(size);
-
-    for(unsigned int i = 0; i < size; i++){
-        filesPathArray[i] = readShortString(wordFileIndex);
-    }
-}
-
-busca_imd_core::ShortString * Config::readShortString(std::fstream & fileStream) {
-    uint16_t length = readUint16(fileStream);
-    char * value = new char(length);
-    fileStream.read(value, length);
-
-    ShortString * result = new ShortString(value);
-    delete value;
-    return result;
-}
-
-busca_imd_index::FileHashMap *Config::readFileHashMap(std::fstream &fileStream, Array<ShortString *> & filesLUT) {
-
-    busca_imd_index::FileHashMap * fileHashMap = new busca_imd_index::FileHashMap(busca_imd_core::ultraFastHash);
-
-    uint16_t size = readUint16(fileStream);
-
-    for(unsigned int i = 0; i < size; i++){
-        fileHashMap->put(filesLUT[readUint16(fileStream)], readListOfOccurrences(fileStream));
+    void Config::loadInfoList() {
+        if (!fileExists(mInfoListFilePath)) return;
+        try {
+            std::ifstream in;
+            in.open(mInfoListFilePath, std::ios::in);
+            if (!in.is_open()) {
+                return;
+            }
+            in >> mInfoList;
+        } catch (std::ifstream::failure e) {
+            mInfoList.clear();
+            Index::getInstance().release();
+        }
     }
 
-    return fileHashMap;
-}
-
-uint16_t Config::readUint16(std::fstream &fileStream) {
-    uint16_t value;
-    fileStream.read((char*)&value, sizeof(uint16_t));
-
-    return value;
-}
-uint32_t Config::readUint32(std::fstream &fileStream) {
-    uint32_t value;
-    fileStream.read((char*)&value, sizeof(uint32_t));
-
-    return value;
-}
-
-
-busca_imd_core::Array<busca_imd_core::ShortString *> Config::readFilesPathArray(std::fstream &fileStream) {
-
-    return busca_imd_core::Array<ShortString *>();
-}
-
-busca_imd_core::List<int> * Config::readListOfOccurrences(std::fstream &fileStream) {
-
-    busca_imd_core::List<int> * listOfOccurrences = new busca_imd_core::List<int>;
-
-    uint32_t size = readUint32(fileStream);
-
-    for(uint32_t i = 0; i < size; i++){
-        uint32_t lineOfOccurrence = readUint32(fileStream);
-        listOfOccurrences->add(lineOfOccurrence);
+    void Config::persistIndex() {
+        try {
+            std::fstream out;
+            std::cout << std::endl << "trying persist " << mIndexFilePath << std::endl;
+            out.open(mIndexFilePath, std::ios::trunc | std::ios::out);
+            if (!out.is_open()) {
+                std::cout << std::endl << "can't persist index file" << std::endl;
+                return;
+            }
+            std::cout << "persisting index into file " << mIndexFilePath << std::endl;
+            out << Index::getInstance();
+            out.flush();
+        } catch (std::fstream::failure e) {
+            std::cout << std::endl << "can't persist index file" << std::endl;
+        }
     }
 
-    return listOfOccurrences;
-}
-
-void Config::readInfoList(busca_imd_core::ShortString infoListPath) {
-
-}
-
-char * getConfigDirPath() {
-
-    char * home = busca_imd_config::getHomeDir();
-    char * config_dir = new char[strlen(home) + strlen(busca_imd_config::getFileSeparator()) + strlen(CONFIG_DIR_NAME) + 1];
-    strcpy(config_dir, home);
-    strcat(config_dir, busca_imd_config::getFileSeparator());
-    strcat(config_dir, CONFIG_DIR_NAME);
-
-    delete home;
-
-    if(!busca_imd_config::dirExists(config_dir)){
-        busca_imd_config::createHiddenDir(config_dir);
+    void Config::persistInfoList() {
+        try {
+            std::fstream out;
+            out.open(mInfoListFilePath, std::ios::trunc | std::ios::out);
+            if (!out.is_open()) {
+                std::cout << std::endl << "can't persist index file" << std::endl;
+                return;
+            }
+            out << mInfoList;
+            out.flush();
+        } catch (std::fstream::failure e) {
+            std::cout << std::endl << "can't persist index file" << std::endl;
+        }
     }
 
-    return config_dir;
+    void Config::insertOrUpdateFile(busca_imd_core::ShortString filePath) {
+        for (FileInfo info : mInfoList) {
+
+            if (info.filePath == filePath) {
+                if (info.updateIndex()) {
+                    mInfoList.remove(info);
+                    mInfoList.add(info);
+                    persistIndex();
+                    persistInfoList();
+                }
+                return;
+            }
+        }
+
+        std::cout << "adding " << filePath << std::endl;
+        FileInfo info(filePath);
+        mInfoList.add(info);
+
+        persistIndex();
+        persistInfoList();
+    }
+
+    void Config::removeFile(busca_imd_core::ShortString filePath) {
+        for (FileInfo info : mInfoList) {
+            if (info.filePath == filePath) {
+                Index::getInstance().remove(filePath);
+                mInfoList.remove(info);
+                persistIndex();
+                persistInfoList();
+                return;
+            }
+        }
+        throw FILE_NOT_FOUND;
+    }
+
+    busca_imd_core::List<FileInfo> Config::getFiles() {
+        return mInfoList;
+    }
+
+    void Config::orderFiles(busca_imd_core::List<FileInfo> &files, char order) {
+        switch (order) {
+            case WORDS_COUNT_ORDER:
+                files.sort(wordsCountOrder);
+                break;
+            case ALPHABETICAL_ORDER:
+                files.sort(alphabeticalOrder);
+                break;
+            case NATURAL_ORDER:
+                files = mInfoList;
+                break;
+        }
+    }
+
+    Config &Config::getInstance() {
+        static Config config;
+        return config;
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- * CONSTRUTOR
- * -->> LER no construtor do config, o indice (arquivo), se não tiver, criar um vazio;
- *
- * DESTRUIDOR
- * -->> SALVAR os indices e a lista de tpInfos no arquivo de indices e no indice_arquivo
- *
- * LISTA
- * -->> LISTA contendo tpInfos na classe config;
- *
- * -->> Funções para Adicionar e remover
- *          -->>Para adicionar: checar o arquivo na lista(indice_arquivo) para ver se precisa atualizar (Last modified data)
- *
- *          -->>Para remover: remover da lista(arquivo) e remover do indice(indice_arquivo) (hashMap(word, fileHashMap(fileName, linha)));
- *
- * -->> Sobreescrever operador == na struct;
- *
- *
- *
- *
- * /////PARA LEMBRAR COMO ESCREVE E LÊ EM UM ARQUIVO BINARIO
-// * //verify if the file is open
-//        if(indexFile.is_open()){
-//            //will run through the file till the end of the file
-//            char * teste_escrita = "Teste";
-//            //write on the file
-//            //element to write on the file, the size of that element in bytes
-//            indexFile.write(teste_escrita, sizeof(teste_escrita));
-//            //close the file
-//            indexFile.close();
-//        }
- *
- *
-// * indexFile.open("C:\\TESTE\\index_file_imd.bin", ios::binary | ios::in);
-//    if(indexFile.is_open()){
-//        char * teste_leitura = new char();
-//        //element where we will store the data read, the size in bytes that we will read from the file
-//        indexFile.read(teste_leitura, sizeof(teste_leitura));
-//
-//        cout << teste_leitura << endl;
-//    }
- *
- *
- *
- */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

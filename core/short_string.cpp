@@ -2,6 +2,7 @@
 // Created by Pedro Paulo on 31/05/2016.
 //
 #include <string.h>
+#include <locale>
 #include <malloc.h>
 #include <iostream>
 #include <nmmintrin.h>
@@ -79,7 +80,24 @@ namespace busca_imd_core {
     }
 
     bool ShortString::operator==(const ShortString &ss) const {
-        return &ss == this || (ss.mLength == this->mLength) && (strncmp(this->mValue, ss.mValue, mLength) == 0);
+
+
+        if (&ss == this) {
+            return true;
+        }
+
+
+        if (ss.mLength != this->mLength) {
+            return false;
+        }
+
+        for (int i = 0; i < mLength; i++) {
+            if (ss.mValue[i] != mValue[i]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     bool ShortString::operator==(const char *const other) const {
@@ -98,9 +116,13 @@ namespace busca_imd_core {
         return mLength;
     }
 
-    uint32_t ultraFastHash(ShortString *const &key) {
-        uint8_t * name = (uint8_t *) key->mValue;
-        uint16_t len = key->mLength;
+    uint32_t ultraFastHash(ShortString *const & key) {
+        return directUltraFastHash(*key);
+    }
+
+    uint32_t directUltraFastHash(ShortString const &key) {
+        uint8_t * name = (uint8_t *) key.mValue;
+        uint16_t len = key.mLength;
         uint32_t hash = 0;
 
 #ifndef __SSE4_2__
@@ -175,20 +197,37 @@ namespace busca_imd_core {
         return hash;
     }
 
-    char *ShortString::asCharArray() {
+    char *ShortString::asCharArray() const {
 
         char * charToReturn = new char[mLength+1];
 
         strncpy(charToReturn, mValue, mLength);
-
+        charToReturn[mLength] = '\0';
         return charToReturn;
     }
 
+    int ShortString::compare(ShortString const &ss) const {
+        if(this == &ss || mLength == ss.mLength && mLength == 0) return 0;
+        if(mLength == 0) {
+            return ss.mLength ? -1 : 0;
+        }
+        if(ss.mLength == 0) {
+            return mLength;
+        }
+
+        char *thisValue = asCharArray(), *thatValue = ss.asCharArray();
+        int value = strcoll(thisValue, thatValue);
+        delete thisValue;
+        delete thatValue;
+        return value;
+    }
 
     std::ostream & operator<<( std::ostream &output,
                                const busca_imd_core::ShortString &ss ) {
         output.write((char*) &ss.mLength, sizeof(uint16_t));
-        output.write(ss.mValue, ss.mLength * sizeof(char));
+        if (ss.mLength) {
+            output.write(ss.mValue, ss.mLength * sizeof(char));
+        }
         return output;
     }
 
@@ -196,8 +235,13 @@ namespace busca_imd_core {
                                busca_imd_core::ShortString &ss ) {
 
         input.read((char*) &ss.mLength, sizeof(uint16_t));
-        ss.mValue = (char *) realloc(ss.mValue, ss.mLength * sizeof(char));
-        input.read(ss.mValue, ss.length());
+        if (ss.mLength > 0 ) {
+            ss.mValue = (char *) realloc(ss.mValue, ss.mLength * sizeof(char));
+            input.read(ss.mValue, ss.length());
+        } else {
+            delete ss.mValue;
+            ss.mValue = nullptr;
+        }
 
         return input;
     }

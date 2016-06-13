@@ -121,8 +121,10 @@ TEST(ShortString, Equals) {
     const char * string = "controle remoto";
     const char * otherString = "televisão";
     ShortString ss(string);
+    ShortString ss2(string);
     EXPECT_NE(ss, otherString);
     EXPECT_EQ(ss, string);
+    EXPECT_EQ(ss, ss2);
 }
 
 TEST(ShortString, Hash) {
@@ -142,5 +144,5 @@ TEST(ShortString, HashColision) {
     EXPECT_NEAR(dispersionRate(0x20), 1, 0.30);
     EXPECT_NEAR(dispersionRate(0x80), 1, 0.30);
     EXPECT_NEAR(dispersionRate(0x800), 1, 0.30);
- }
+}
 

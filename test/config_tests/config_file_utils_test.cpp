@@ -15,6 +15,8 @@ TEST(ConfigFileUtils, getHomeDir){
     EXPECT_NE(myDir, nullptr);
     EXPECT_GT(strlen(myDir), 0);
 
+    std::cout << std::endl << "home dir = " << myDir << std::endl;
+
     delete myDir;
 }
 
@@ -37,10 +39,15 @@ TEST(ConfigFileUtils, createHiddenDir){
 
     char * myDir = busca_imd_config::getHomeDir();
 
-    busca_imd_config::joinPath(myDir, CONFIG_DIR_NAME);
+    char * hiddenDir = busca_imd_config::joinPath(myDir, ".delete-me434243234435435");
 
-    EXPECT_FALSE(busca_imd_config::createHiddenDir(myDir));
+    std::cout << std::endl << "creating hidden dir " << hiddenDir << std::endl;
 
+    EXPECT_TRUE(busca_imd_config::createHiddenDir(hiddenDir));
+    EXPECT_TRUE(busca_imd_config::dirExists(hiddenDir));
+
+    std::remove(hiddenDir);
+    delete hiddenDir;
     delete myDir;
 }
 

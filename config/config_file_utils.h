@@ -20,7 +20,7 @@ namespace busca_imd_config {
     bool fileExists(const char * path);
 
     //join a path
-    void joinPath(char *parent, const char *file);
+    char * joinPath(char *parent, const char *file);
 
     //get the file separator
     const char * getFileSeparator();

@@ -8,6 +8,10 @@ using busca_imd_core::List;
 using busca_imd_core::Iterator;
 
 
+int int_comparator (const int & a, const int & b) {
+    return a - b;
+}
+
 // Ctrl + Shift + F10
 
 TEST(List, Insert) {
@@ -126,3 +130,50 @@ TEST(List, AssignmentOperator) {
     EXPECT_EQ(list2.get(0), LIST_SIZE);
 }
 
+TEST(List, Clear) {
+    List<int> list;
+    for(int i = 0; i< 10; ++i) {
+        list.add(i);
+    }
+    EXPECT_EQ(list.size(), 10);
+    list.clear();
+    EXPECT_EQ(list.size(), 0);
+    for (int el : list) {
+        FAIL();
+    }
+    for(int i = 0; i< 10; ++i) {
+        list.add(i);
+    }
+    EXPECT_EQ(list.size(), 10);
+    int i = 0;
+    for (int el : list) {
+        EXPECT_EQ(el, i++);
+    }
+    EXPECT_EQ(i, 10);
+}
+
+TEST(List, Ordering) {
+    List<int> list;
+    list.add(20);
+    list.add(3);
+    list.add(2);
+    list.add(1);
+    list.add(6);
+    list.add(5);
+    list.add(4);
+
+    int sizeBeforeSorting = list.size();
+    list.sort(int_comparator);
+    bool firstElement = true;
+    int prevElement;
+    for (int el : list) {
+        if (firstElement) {
+            firstElement = false;
+            prevElement = el;
+            continue;
+        }
+        EXPECT_GE(el, prevElement);
+        prevElement = el;
+    }
+    EXPECT_EQ(list.size(), sizeBeforeSorting);
+}

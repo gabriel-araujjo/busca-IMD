@@ -143,4 +143,23 @@ TEST(HashMap, DuplicateKeyInsertion) {
     EXPECT_EQ(pointerHashMap.size(), 1);
 }
 
+TEST(HashMap, Clear) {
+    HashMap<int, int> hashMap(intHash);
+    for(int i = 0; i< 10; ++i) {
+        hashMap.put(i, i);
+        hashMap.put(i, i*10);
+    }
+    EXPECT_EQ(hashMap.size(), 10);
+    hashMap.clear();
+    EXPECT_EQ(hashMap.size(), 0);
+    for(int i = 0; i< 10; ++i) {
+        hashMap.put(i+10, i+10);
+        hashMap.put(i+10, i*10);
+    }
+    for (int i = 0; i < 10; i++) {
+        EXPECT_THROW(hashMap.get(i), int);
+        EXPECT_EQ(hashMap.get(i+10), i*10);
+    }
+}
+
 

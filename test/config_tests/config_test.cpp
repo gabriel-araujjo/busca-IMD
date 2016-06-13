@@ -3,18 +3,26 @@
 //
 #include "gtest/gtest.h"
 
+#include "cases_config.h"
+#include "short_string.h"
+#include "config_file_utils.h"
 #include "config.h"
 
-using namespace busca_imd_config;
+using busca_imd_core::ShortString;
+using busca_imd_config::Config;
 
-TEST(FILE, insertFile){
-Config file;
 
-file.insertOrUpdateFile((char *) "C:\\TESTE\\LoremIpsumSmall.txt");
+TEST(Config, Sanity) {
+    busca_imd_config::Config::getInstance();
+    SUCCEED();
 }
 
-TEST(FILE, removeFile){
+TEST(Config, insertFile){
+    const char * filePath_charArr = CASES_DIR FILE_SEPARATOR "portugues_com_acento.txt";
+    ShortString filePath(filePath_charArr);
 
+    busca_imd_config::Config::getInstance().insertOrUpdateFile(filePath);
+    SUCCEED();
 }
 
 

@@ -7,3 +7,5 @@ set(SOURCE_FILES
         index.cpp)
 
 add_library(index STATIC ${HEADER_FILES} ${SOURCE_FILES})
+
+target_link_libraries(index core)

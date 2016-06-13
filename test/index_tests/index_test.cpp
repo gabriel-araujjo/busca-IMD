@@ -19,15 +19,15 @@ using busca_imd_core::HashMap;
 using busca_imd_core::List;
 using busca_imd_core::ShortString;
 using busca_imd_index::Index;
-using busca_imd_core::ultraFastHash;
+using busca_imd_core::directUltraFastHash;
 
 class IndexTest : public  ::testing::Test {
 
 
 protected:
 
-    static HashMap<ShortString*, List<ShortString*>> * & getMap() {
-        static HashMap<ShortString*, List<ShortString*>> * indexMap(nullptr);
+    static HashMap<ShortString, List<ShortString>> * & getMap() {
+        static HashMap<ShortString, List<ShortString>> * indexMap(nullptr);
         return indexMap;
     }
 
@@ -42,7 +42,7 @@ protected:
             FAIL();
         }
 
-        IndexTest::getMap() = new HashMap<ShortString*, List<ShortString*>>(ultraFastHash);
+        IndexTest::getMap() = new HashMap<ShortString, List<ShortString>>(directUltraFastHash);
 
         static const char * cases_path = CASES_DIR FILE_SEPARATOR "index.cases";
 
@@ -51,7 +51,6 @@ protected:
         if(!cases.is_open())
         {
             std::cout << std::endl << "Can't open file " << cases_path << "Test fail!" << std::endl;
-            cases.clear( );
             FAIL();
         }
 
@@ -61,12 +60,12 @@ protected:
             std::stringstream lineStream(line);
 
             lineStream >> file;
-            List<ShortString*> words;
+            List<ShortString> words;
             while (!lineStream.eof()) {
                 lineStream >> word;
-                words.add(new ShortString(word.c_str()));
+                words.add(word.c_str());
             }
-            IndexTest::getMap()->put(new ShortString(file.c_str()), words);
+            IndexTest::getMap()->put(file.c_str(), words);
         }
 
         cases.close();
@@ -88,8 +87,8 @@ TEST_F(IndexTest, Addition) {
             int line = 1;
             Index::getInstance().addEntry(entry.key, word, line);
             EXPECT_TRUE(Index::getInstance().get(word)->size() > 0);
-            EXPECT_NO_THROW(Index::getInstance().get(word)->get(entry.key));
-            EXPECT_TRUE(Index::getInstance().get(word)->get(entry.key)->contains(line));
+            EXPECT_NO_THROW(Index::getInstance().get(word)->get(&entry.key));
+            EXPECT_TRUE(Index::getInstance().get(word)->get(&entry.key)->contains(line));
         }
     }
 }
@@ -99,7 +98,7 @@ TEST_F(IndexTest, Removing) {
     if (Index::getInstance().size() == 0) {
         for (auto entry : *IndexTest::getMap()) {
             for (auto word : entry.value) {
-                int line = 1;
+                int line = 0;
                 Index::getInstance().addEntry(entry.key, word, line);
             }
         }
@@ -114,19 +113,11 @@ TEST_F(IndexTest, Removing) {
 
         // No words can contain this file
         for (auto wordHashEntry : Index::getInstance()) {
-            EXPECT_FALSE(wordHashEntry.value->contains(entry.key));
+            EXPECT_FALSE(wordHashEntry.value->contains(&entry.key));
         }
     }
 
     EXPECT_EQ(Index::getInstance().size(), 0);
-
-    for (auto entry : *IndexTest::getMap()) {
-        for (auto word : entry.value) {
-            delete word;
-        }
-    }
-    delete IndexTest::getMap();
-    IndexTest::getMap() = nullptr;
 }
 
 TEST_F(IndexTest, Release) {
@@ -145,14 +136,6 @@ TEST_F(IndexTest, Release) {
     Index::getInstance().release();
 
     EXPECT_EQ(Index::getInstance().size(), 0);
-
-    for (auto entry : *IndexTest::getMap()) {
-        for (auto word : entry.value) {
-            delete word;
-        }
-    }
-    delete IndexTest::getMap();
-    IndexTest::getMap() = nullptr;
 }
 
 TEST_F(IndexTest, Serialization) {
@@ -176,13 +159,6 @@ TEST_F(IndexTest, Serialization) {
     out.close();
     EXPECT_TRUE(Index::getInstance().size() > 0);
     Index::getInstance().release();
-    for (auto entry : *IndexTest::getMap()) {
-        for (auto word : entry.value) {
-            delete word;
-        }
-    }
-    delete IndexTest::getMap();
-    IndexTest::getMap() = nullptr;
 
     std::ifstream in;
     in.open(tmpFilePath, std::ios::binary);

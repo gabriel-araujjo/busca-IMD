@@ -70,9 +70,12 @@ namespace busca_imd_config{
         return stat( path, &info ) == 0;
     }
 
-    void joinPath(char * parent, const char * file){
-        strcpy(parent, FILE_SEPARATOR);
-        strcat(parent, file);
+    char * joinPath(char * parent, const char * file){
+        char * joinedPath = new char[(strlen(parent) + strlen(FILE_SEPARATOR) + strlen(file)) * sizeof(char)];
+        strcpy(joinedPath, parent);
+        strcat(joinedPath, FILE_SEPARATOR);
+        strcat(joinedPath, file);
+        return joinedPath;
     }
 
     const char *getFileSeparator() {

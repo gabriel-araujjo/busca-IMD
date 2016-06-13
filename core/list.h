@@ -15,12 +15,44 @@ namespace busca_imd_core {
 
     template <typename Element>
     class List {
-
+    public:
+        typedef int (*Comparator) (const Element &, const Element &);
     private:
-        typedef struct tpNode {
+        typedef class tpNode {
+        public:
+            tpNode() : prev(nullptr), next(nullptr), element(nullptr) {
+
+            }
             tpNode * prev;
             tpNode * next;
             Element * element;
+
+            void remove() {
+                if (!(prev && next))
+                    return;
+                prev->next = next;
+                next->prev = prev;
+                prev = nullptr;
+                next = nullptr;
+            }
+
+            void addAfter(tpNode * node) {
+                if (prev || next || !node)
+                    return;
+                prev = node;
+                next = node->next;
+                prev->next = this;
+                next->prev = this;
+            }
+
+            void addBefore(tpNode * node) {
+                if (prev || next || !node)
+                    return;
+                prev = node->prev;
+                next = node;
+                prev->next = this;
+                next->prev = this;
+            }
         } * Node;
 
         class ListCursor : public Iterator<Element>::Cursor {
@@ -46,6 +78,8 @@ namespace busca_imd_core {
 
         void init();
         Node getNodeAt(int index);
+        void mergeSort(Node &first, Node &last, Comparator comparator);
+        void merge(Node &start, Node &middle, Node &end, Comparator comparator);
 
     public:
 
@@ -60,9 +94,11 @@ namespace busca_imd_core {
         bool add(Element element, int index = -1);
 
         bool remove(Element element);
+        void sort(Comparator comparator);
         Element get(int index);
         bool contains(Element &element);
         int size()const;
+        void clear();
         Iterator<Element> begin() const;
         Iterator<Element>& end() const;
 
@@ -109,20 +145,9 @@ namespace busca_imd_core {
     List<Element>& List<Element>::operator=(const List<Element> &other) {
         if (this != &other) {
 
-            Node node, cursor = mFirst->next;
+            clear();
 
-            while (cursor != mLast) {
-                node = cursor;
-                cursor = cursor->next;
-
-                delete node->element;
-                delete node;
-            }
-
-            mFirst->next = mLast;
-            mLast->prev = mFirst;
-
-            cursor = other.mFirst->next, node = mFirst;
+            Node cursor = other.mFirst->next, node = mFirst;
 
             while (cursor != other.mLast) {
                 Node newNode = new tpNode;
@@ -162,8 +187,8 @@ namespace busca_imd_core {
  */
     template <typename Element>
     void List<Element>::init() {
-        mFirst = new struct tpNode({nullptr, nullptr, nullptr});
-        mLast = new struct tpNode({nullptr, nullptr, nullptr});
+        mFirst = new tpNode;
+        mLast = new tpNode;
         mFirst->next = mLast;
         mLast->prev = mFirst;
 
@@ -210,6 +235,22 @@ namespace busca_imd_core {
     template <typename Element>
     int List<Element>::size()const {
         return mSize;
+    }
+
+    template <typename Element>
+    void List<Element>::clear() {
+        typename busca_imd_core::List<Element>::Node node, cursor = mFirst->next;
+        while (cursor != mLast) {
+            node = cursor;
+            cursor = cursor->next;
+
+            delete node->element;
+            delete node;
+        }
+
+        mFirst->next = mLast;
+        mLast->prev = mFirst;
+        mSize = 0;
     }
 
     template <typename Element>
@@ -283,7 +324,50 @@ namespace busca_imd_core {
         return false;
     }
 
+    template <typename Element>
+    void List<Element>::sort(Comparator comparator) {
+        Node first = mFirst->next;
+        Node last = mLast;
+        mergeSort(first, last, comparator);
+    }
 
+    template <typename Element>
+    void List<Element>::mergeSort(Node &first, Node &last, Comparator comparator) {
+        if (first == last || first->next == last) return;
+
+        Node slow, fast;
+        slow = fast = first;
+        while (fast != last) {
+            fast = fast->next;
+            if (fast != last) {
+                fast = fast->next;
+                slow = slow->next;
+            }
+        }
+        mergeSort(first, slow, comparator);
+        mergeSort(slow, last, comparator);
+        merge(first, slow, last, comparator);
+    }
+
+
+    template <typename Element>
+    void List<Element>::merge(Node &start, Node &middle, Node &end, Comparator comparator) {
+        Node node;
+        Node left = start;
+        while (left != middle && middle != end) {
+            if (comparator(*middle->element, *left->element) < 0) {
+                node = middle;
+                middle = middle->next;
+                node->remove();
+                node->addBefore(left);
+                if (left == start) {
+                    start = node;
+                }
+            } else {
+                left = left->next;
+            }
+        }
+    }
 
 
 /******************************************************************
@@ -335,18 +419,7 @@ namespace busca_imd_core {
     std::istream  &operator>>( std::istream &input,
                                       busca_imd_core::List<Element> &list ) {
 
-        typename busca_imd_core::List<Element>::Node node, cursor = list.mFirst->next;
-
-        while (cursor != list.mLast) {
-            node = cursor;
-            cursor = cursor->next;
-
-            delete node->element;
-            delete node;
-        }
-
-        list.mFirst->next = list.mLast;
-        list.mLast->prev = list.mFirst;
+        list.clear();
 
 
         uint16_t listPosition;

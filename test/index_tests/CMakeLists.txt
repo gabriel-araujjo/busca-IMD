@@ -6,4 +6,4 @@ add_executable(index_tests ${SOURCE_FILES})
 
 target_link_libraries(index_tests gtest gtest_main)
 
-target_link_libraries(index_tests core index)
+target_link_libraries(index_tests index)

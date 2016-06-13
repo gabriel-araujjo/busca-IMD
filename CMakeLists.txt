@@ -10,17 +10,14 @@ set(SOURCE_FILES main.cpp)
 add_executable(busca_imd ${SOURCE_FILES})
 
 include_directories(core)
-include_directories(io)
 include_directories(index)
 include_directories(config)
 
 add_subdirectory(core)
-add_subdirectory(io)
 add_subdirectory(index)
 add_subdirectory(config)
 add_subdirectory(test)
 
 target_link_libraries(busca_imd core)
-target_link_libraries(busca_imd io)
 target_link_libraries(busca_imd index)
 target_link_libraries(busca_imd config)
