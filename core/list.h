@@ -95,6 +95,8 @@ namespace busca_imd_core {
 
         bool remove(Element element);
         void sort(Comparator comparator);
+        void intersection(const List<Element> &other, Comparator comparator);
+        void join(const List<Element> &other, Comparator);
         Element get(int index);
         bool contains(Element &element);
         int size()const;
@@ -329,6 +331,66 @@ namespace busca_imd_core {
         Node first = mFirst->next;
         Node last = mLast;
         mergeSort(first, last, comparator);
+    }
+
+    template <typename Element>
+    void List<Element>::intersection(const List<Element> &other, Comparator comparator) {
+        Node thisCursor = mFirst->next;
+        Node thatCursor = other.mFirst->next;
+
+        Node toRemove;
+        while(thisCursor != mLast && thisCursor != other.mLast) {
+            int result = comparator(*thisCursor->element, *thatCursor->element);
+            if (result < 0) {
+                toRemove = thisCursor;
+                thisCursor = thisCursor->next;
+                toRemove->remove();
+                mSize--;
+            } else if (result == 0) {
+                thisCursor = thisCursor->next;
+                thatCursor = thatCursor->next;
+            } else {
+                thatCursor = thatCursor->next;
+            }
+        }
+
+        while (thisCursor != mLast) {
+            toRemove = thisCursor;
+            thisCursor = thisCursor->next;
+            toRemove->remove();
+            mSize--;
+        }
+    }
+
+    template <typename Element>
+    void List<Element>::join(const List<Element> &other, Comparator comparator) {
+        Node thisCursor = mFirst->next;
+        Node thatCursor = other.mFirst->next;
+
+        Node toAdd;
+        while(thisCursor != mLast && thisCursor != other.mLast) {
+            int result = comparator(*thisCursor->element, *thatCursor->element);
+            if (result < 0) {
+                thisCursor = thisCursor->next;
+            } else if (result == 0) {
+                thisCursor = thisCursor->next;
+                thatCursor = thatCursor->next;
+            } else {
+                toAdd = new tpNode();
+                toAdd->element = new Element(*(thatCursor->element));
+                toAdd->addBefore(thisCursor);
+                thatCursor = thatCursor->next;
+                mSize++;
+            }
+        }
+
+        while (thatCursor != other.mLast) {
+            toAdd = new tpNode();
+            toAdd->element = new Element(*(thatCursor->element));
+            toAdd->addBefore(mLast);
+            thatCursor = thatCursor->next;
+            mSize++;
+        }
     }
 
     template <typename Element>

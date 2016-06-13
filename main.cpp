@@ -3,6 +3,11 @@
 #define COMMAND_INSERT 'i'
 #define COMMAND_REMOVE 'r'
 #define COMMAND_LIST 'l'
+#define COMMAND_SEARCH 'b'
+
+#define SEARCH_ORDER_ALPHABETICAL 'A'
+#define SEARCH_ORDER_OCCURRENCES 'C'
+#define SEARCH_ORDER_INSERTION 'I'
 
 #include "stdlib.h"
 #include "string.h"
@@ -12,11 +17,17 @@ using busca_imd_config::Config;
 using busca_imd_config::FileInfo;
 using busca_imd_core::ShortString;
 using busca_imd_core::List;
+using busca_imd_core::HashMap;
+using busca_imd_index::Index;
+using busca_imd_index::FileHashMap;
 
-
+int int_comparator (const int & a, const int & b) {
+    return a - b;
+}
 
 int main(int argc, char ** argv) {
 
+    const clock_t begin = clock();
     if (argc < 2 || argv[1][0] != '-') {
         //show help
         return 1;
@@ -24,8 +35,6 @@ int main(int argc, char ** argv) {
     }
 
     int command = argv[1][1];
-
-
 
         //search base arguments
         //<-i <file_directory>, -r <file_name>, -li, -la, -lt>
@@ -85,7 +94,75 @@ int main(int argc, char ** argv) {
         } else {
             std::cout << ">> Base de buscas vazia" << std::endl;
         }
+        return 0;
     }
+
+    bool exclusive = false;
+    bool showTime = false;
+    char order = SEARCH_ORDER_INSERTION;
+    List<ShortString> words;
+    for (int i = 1; i < argc; ++i) {
+        switch (*argv[i]) {
+            case '-':
+                switch (argv[i][1]) {
+                    case 'b':
+                        exclusive = argv[i][2] == 'A';
+                        break;
+                    case 't':
+                        showTime = argv[i][2] == 'T';
+                        break;
+                    case 'p':
+                        order = argv[i][2];
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                ShortString s(argv[i]);
+                words.add(s);
+        }
+    }
+
+    //FIXME:
+//    if (!words.size()) return 1;
+//    HashMap<ShortString, List<int>*> results(busca_imd_core::directUltraFastHash);
+//
+//    for (auto word : words) {
+//        for (FileHashMap::Entry entry : *Index::getInstance().get(word)) {
+//            List<int> * list;
+//            try {
+//                list = results.get(*entry.key);
+//            } catch (int e) {
+//                list = new List<int>;
+//                results.put(*entry.key, list);
+//                list->join(*entry.value, int_comparator);
+//                continue;
+//            }
+//            if (exclusive) {
+//                list->intersection(*entry.value, int_comparator);
+//            } else {
+//                list->join(*entry.value, int_comparator);
+//            }
+//        }
+//    }
+//
+//    for (auto entry : results) {
+//        std::cout << "Arquivo " << entry.key << std::endl;
+//        for (int line : *entry.value) {
+//            std::cout << "\tLinha " << line << std::endl;
+//        }
+//    }
+
+//    if (command == COMMAND_SEARCH) {
+//        switch (argv[1][2]) {
+//            case 'A':
+//
+//                break;
+//            case 'O':
+//                break;
+//        }
+//    }
 
 
 
