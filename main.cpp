@@ -87,6 +87,8 @@ int main(int argc, char ** argv) {
         }
     }
 
+
+
 //    //search options
 //    // <-bAND, -bOR> <-pA, -pC, -pI> <-tT, -tF> <key_words[]>
 //    //if it hasn't any of the print options or time options

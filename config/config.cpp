@@ -134,8 +134,9 @@ namespace busca_imd_config {
 
     void Config::removeFile(busca_imd_core::ShortString filePath) {
         for (FileInfo info : mInfoList) {
+            std::cout << "checkinf " << filePath << " against " << info.filePath << std::endl;
             if (info.filePath == filePath) {
-                Index::getInstance().remove(filePath);
+                Index::getInstance().removeFile(filePath);
                 mInfoList.remove(info);
                 persistIndex();
                 persistInfoList();
