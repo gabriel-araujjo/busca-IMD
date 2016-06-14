@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <fstream>
+#include <fileapi.h>
 
 #include "index.h"
 #include "config_file_utils.h"
@@ -175,7 +176,12 @@ namespace busca_imd_config {
         //insert a new file on the search base
         ShortString shortString;
         for (int i = 2; i < argc; i++) {
+#if defined(WIN32) || defined(_WIN32)
+            char *file = new char[strlen(argv[i])+1];
+            GetFullPathName(argv[i], strlen(argv[i])+1, file, 0);
+#else
             char *file = realpath(argv[i], nullptr);
+#endif
             shortString = file;
             try {
                 Config::getInstance().insertOrUpdateFile(shortString);
@@ -195,7 +201,12 @@ namespace busca_imd_config {
         //remove a file from the search base
         ShortString shortString;
         for (int i = 2; i < argc; i++) {
+#if defined(WIN32) || defined(_WIN32)
+            char *file = new char[strlen(argv[i])+1];
+            GetFullPathName(argv[i], strlen(argv[i])+1, file, 0);
+#else
             char *file = realpath(argv[i], nullptr);
+#endif
             shortString = file;
             try {
                 Config::getInstance().removeFile(shortString);

@@ -42,6 +42,7 @@ int main(int argc, char ** argv) {
         case COMMAND_LIST:
             return Config::listFiles(argc, argv);
         default:
+
             break;
     }
 
@@ -88,6 +89,29 @@ int main(int argc, char ** argv) {
 void checkIsValidArgs(int argc, char ** argv) {
     if (argc < 2 || argv[1][0] != '-') {
         //show help
+        std::cout << "Argumento invalido" << std::endl
+                << "Os argumentos posseveis sao: " << std::endl
+                << "Gerenciar base de arquivos: <opcao> <nome_arquivo>" << std::endl
+                << "<opcao>" << std::endl
+                << "-i" << " <nome_arquivo>" << " : inserir arquivo na base de busca" << std::endl
+                << "-r" << " <nome_arquivo>" << " : remover arquivo na base de busca" << std::endl
+                << "-li, -la, -lt" << " : listar arquivos que estão na base de busca" << std::endl
+                << "\t-li" << " : listar na ordem em que os arquivos foram inseridos" << std::endl
+                << "\t-la" << " : listar os arquivos em ordem alfabetica" << std::endl
+                << "\t-lt" << " : listar os arquivos em ordem decrescente da quantidade de palavras em cada arquivo" << std::endl
+                << std::endl
+                << "Realizar uma busca: <opcao_busca> <opcao_impressao> <tempo> <palavras_chave>" << std::endl
+                << "<opcao_busca> " << "-bAND, -bOR" << std::endl
+                << "\t-bAND" << " : busca por linhas que contenham todas as palavras chave" << std::endl
+                << "\t-bOR" << " : busca por linhas que contenham ao menos uma palavra chave" << std::endl
+                << "<opcao_impressao> " << "-pA, -pC, -pI" << std::endl
+                << "\t-pA" << " : resultados listados em ordem alfabetica do nome do arquivo" << std::endl
+                << "\t-pC" << " : resultados listados em ordem decrescente do numero de vezes que a palavra foi \n\tencontrada no arquivo" << std::endl
+                << "\t-pI" << " : resultados listados na ordem em que cada arquivo foi inserido na base" << std::endl
+                << "<tempo> " << "-tF, -tT" << std::endl
+                << "\t-tF" << " : nao sera exibido o tempo de execucao da busca" << std::endl
+                << "\t-tT" << " : sera exibido o tempo de execucao da busca" << std::endl
+                << "<palavras_chave>" << std::endl;
         exit(1);
     }
 }
