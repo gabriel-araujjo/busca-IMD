@@ -20,7 +20,6 @@ namespace busca_imd_config {
     private:
         time_t getFileLastModifiedAttr(char * file);
         void readWords(char * file);
-        uint8_t readUtf8Char(std::istream &input, uint32_t &dest);
     public:
         busca_imd_core::ShortString filePath;
         time_t lastModified;

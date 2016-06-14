@@ -28,11 +28,20 @@
 
 namespace busca_imd_index {
 
+    struct SearchParams {
+        bool exclusive;
+        bool showTime;
+        char order;
+        busca_imd_core::List<busca_imd_core::ShortString> words;
+    };
+
     //hashMap containing the ocurrences of the word (fileName, list of lines)
     typedef busca_imd_core::HashMap<busca_imd_core::ShortString *, busca_imd_core::List<int>*> FileHashMap;
 
     //hashMap containing the word index (word, FileHashMap)
     typedef busca_imd_core::HashMap<busca_imd_core::ShortString, FileHashMap*> WordHashMap;
+
+    typedef busca_imd_core::HashMap<busca_imd_core::ShortString, busca_imd_core::List<int>*> SearchResult;
 
     class Index : public WordHashMap{
 
@@ -68,6 +77,11 @@ namespace busca_imd_index {
         //the occurrences of that word in the hashMap
         void addEntry(Str & filePath, Str & word, int line, bool forceInsertion = false);
 
+
+        // return a map
+        // file->lines
+        // some files may contain empty list of lines, ignore them
+        SearchResult * search(SearchParams &params);
 
         //remove the occurrences of the word from the hashMap
         //return nullptr

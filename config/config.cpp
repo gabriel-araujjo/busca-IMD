@@ -3,6 +3,7 @@
 //
 
 
+#include <stdlib.h>
 #include <fstream>
 
 #include "index.h"
@@ -25,13 +26,23 @@ namespace busca_imd_config {
         return a.filePath.compare(b.filePath);
     }
 
-    Config::Config() {
+    Config::Config() : initialized(false){
         std::setlocale(LC_COLLATE, "pt_BR.UTF-8");
         char *cfgDir = getConfigDirPath();
         mIndexFilePath = joinPath(cfgDir, INDEX_WORD_PATH);
         mInfoListFilePath = joinPath(cfgDir, INDEX_FILE_PATH);
-        loadIndex();
-        loadInfoList();
+        delete cfgDir;
+    }
+
+    void Config::init(bool loadOnlyIndex) {
+        if (!initialized) {
+            initialized = true;
+            internalLoadIndex();
+
+            if (loadOnlyIndex) return;
+
+            internalLoadInfoList();
+        }
     }
 
     char * Config::getConfigDirPath() {
@@ -48,7 +59,7 @@ namespace busca_imd_config {
         return config_dir;
     }
 
-    void Config::loadIndex() {
+    void Config::internalLoadIndex() {
         //If index file does not exist, don't read it
         if (!fileExists(mIndexFilePath)) return;
         try {
@@ -63,7 +74,7 @@ namespace busca_imd_config {
         }
     }
 
-    void Config::loadInfoList() {
+    void Config::internalLoadInfoList() {
         if (!fileExists(mInfoListFilePath)) return;
         try {
             std::ifstream in;
@@ -81,17 +92,17 @@ namespace busca_imd_config {
     void Config::persistIndex() {
         try {
             std::fstream out;
-            std::cout << std::endl << "trying persist " << mIndexFilePath << std::endl;
+//            std::cout << std::endl << "trying persist " << mIndexFilePath << std::endl;
             out.open(mIndexFilePath, std::ios::trunc | std::ios::out);
             if (!out.is_open()) {
-                std::cout << std::endl << "can't persist index file" << std::endl;
+//                std::cout << std::endl << "can't persist index file" << std::endl;
                 return;
             }
-            std::cout << "persisting index into file " << mIndexFilePath << std::endl;
+//            std::cout << "persisting index into file " << mIndexFilePath << std::endl;
             out << Index::getInstance();
             out.flush();
         } catch (std::fstream::failure e) {
-            std::cout << std::endl << "can't persist index file" << std::endl;
+//            std::cout << std::endl << "can't persist index file" << std::endl;
         }
     }
 
@@ -100,13 +111,13 @@ namespace busca_imd_config {
             std::fstream out;
             out.open(mInfoListFilePath, std::ios::trunc | std::ios::out);
             if (!out.is_open()) {
-                std::cout << std::endl << "can't persist index file" << std::endl;
+//                std::cout << std::endl << "can't persist index file" << std::endl;
                 return;
             }
             out << mInfoList;
             out.flush();
         } catch (std::fstream::failure e) {
-            std::cout << std::endl << "can't persist index file" << std::endl;
+//            std::cout << std::endl << "can't persist index file" << std::endl;
         }
     }
 
@@ -124,7 +135,7 @@ namespace busca_imd_config {
             }
         }
 
-        std::cout << "adding " << filePath << std::endl;
+//        std::cout << "adding " << filePath << std::endl;
         FileInfo info(filePath);
         mInfoList.add(info);
 
@@ -134,7 +145,7 @@ namespace busca_imd_config {
 
     void Config::removeFile(busca_imd_core::ShortString filePath) {
         for (FileInfo info : mInfoList) {
-            std::cout << "checkinf " << filePath << " against " << info.filePath << std::endl;
+//            std::cout << "checkinf " << filePath << " against " << info.filePath << std::endl;
             if (info.filePath == filePath) {
                 Index::getInstance().removeFile(filePath);
                 mInfoList.remove(info);
@@ -150,22 +161,89 @@ namespace busca_imd_config {
         return mInfoList;
     }
 
-    void Config::orderFiles(busca_imd_core::List<FileInfo> &files, char order) {
-        switch (order) {
-            case WORDS_COUNT_ORDER:
-                files.sort(wordsCountOrder);
-                break;
-            case ALPHABETICAL_ORDER:
-                files.sort(alphabeticalOrder);
-                break;
-            case NATURAL_ORDER:
-                files = mInfoList;
-                break;
-        }
-    }
-
-    Config &Config::getInstance() {
+    Config &Config::getInstance(bool loadOnlyIndex) {
         static Config config;
+        config.init(loadOnlyIndex);
         return config;
     }
+
+    void Config::loadIndex() {
+        getInstance(true);
+    }
+
+    int Config::insertFiles(int argc, char **argv) {
+        //insert a new file on the search base
+        ShortString shortString;
+        for (int i = 2; i < argc; i++) {
+            char *file = realpath(argv[i], nullptr);
+            shortString = file;
+            try {
+                Config::getInstance().insertOrUpdateFile(shortString);
+                std::cout << ">> Arquivo \"" << file << "\" inserido/atualizado." << std::endl;
+            } catch (int fileNotFound) {
+                std::cout << ">> Arquivo \"" << file << "\" não encontrado." << std::endl;
+                delete file;
+                exit(1);
+            }
+            delete file;
+            //insert one or more files to the search base
+        }//if it has zero files to insert, print a message explaining that the "-i" argument need at least
+        //one file directory
+    }
+
+    int Config::removeFiles(int argc, char **argv) {
+        //remove a file from the search base
+        ShortString shortString;
+        for (int i = 2; i < argc; i++) {
+            char *file = realpath(argv[i], nullptr);
+            shortString = file;
+            try {
+                Config::getInstance().removeFile(shortString);
+                std::cout << ">> Arquivo \"" << file << "\" removido." << std::endl;
+            } catch (int fileNotFound) {
+                std::cout << ">> Arquivo \"" << file << "\" não está na base de busca." << std::endl;
+                delete file;
+                exit(1);
+            }
+            delete file;
+            //remove one or more files to the search base
+        }//if it has zero files to insert, print a message explaining that the "-r" argument need at least
+        //one file name
+    }
+
+    int Config::listFiles(int argc, char **argv) {
+        //list the files in the search base with NATURAl order
+        List<FileInfo>::Comparator order = nullptr;
+
+        switch (argv[1][2]) {
+            case WORDS_COUNT_ORDER:
+                order = wordsCountOrder;
+                break;
+            case ALPHABETICAL_ORDER:
+                order = alphabeticalOrder;
+                break;
+            case NATURAL_ORDER:
+                break;
+            default:
+                return 1;
+        }
+
+        List<FileInfo> files = Config::getInstance().getFiles();
+        if (order) {
+            files.sort(order);
+        }
+        if (files.size()) {
+            std::cout << ">> Arquivos contidos na base de buscas " << std::endl;
+            for (FileInfo fileInfo : files) {
+                char * file_charArr = fileInfo.filePath.asCharArray();
+                std::cout << "\t-\t\"" << file_charArr << "\"" << std::endl;
+                delete file_charArr;
+            }
+        } else {
+            std::cout << ">> Base de buscas vazia" << std::endl;
+        }
+        return 0;
+    }
+
+
 }

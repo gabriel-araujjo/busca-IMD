@@ -1,7 +1,17 @@
 //
 // Created by Pedro Paulo on 31/05/2016.
 //
+#define UTF8_0BYTE 0x00
+#define UTF8_1BYTE 0x80
+#define UTF8_2BYTES 0xC0
+#define UTF8_3BYTES 0xE0
+#define UTF8_4BYTES 0xF0
+#define UTF8_5BYTES 0xF8
+
 #include <string.h>
+#include <streambuf>
+#include <ostream>
+#include <istream>
 #include <locale>
 #include <malloc.h>
 #include <iostream>
@@ -11,6 +21,12 @@
 #include "short_string.h"
 
 namespace busca_imd_core {
+
+    struct membuf : std::streambuf {
+        membuf(char* begin, char* end) {
+            this->setg(begin, begin, end);
+        }
+    };
 
     void ShortString::copy(const char *const & word) {
         mLength = (uint16_t) strlen(word);
@@ -197,13 +213,14 @@ namespace busca_imd_core {
         return hash;
     }
 
-    char *ShortString::asCharArray() const {
+    char *ShortString::asCharArray(char * target) const {
+        if (!target){
+            target = new char[mLength+1];
+        }
 
-        char * charToReturn = new char[mLength+1];
-
-        strncpy(charToReturn, mValue, mLength);
-        charToReturn[mLength] = '\0';
-        return charToReturn;
+        strncpy(target, mValue, mLength);
+        target[mLength] = '\0';
+        return target;
     }
 
     int ShortString::compare(ShortString const &ss) const {
@@ -220,6 +237,35 @@ namespace busca_imd_core {
         delete thisValue;
         delete thatValue;
         return value;
+    }
+
+    ShortString ShortString::toUpperCase() const {
+        ShortString s;
+        uint32_t character;
+        uint8_t charSize, i;
+        char * bytes;
+        uint16_t read = 0;
+        membuf inputSrc(mValue, mValue + mLength);
+        std::istream in(&inputSrc);
+
+        s.mLength = mLength;
+        s.mValue = (char *) realloc(s.mValue, s.mLength * sizeof(char));
+
+        while (read < mLength) {
+
+            charSize = readUtf8Char(in, character);
+            read+=charSize;
+            if (isAlphaCharacter(character)) {
+                busca_imd_core::toUpperCase(character);
+            }
+
+            bytes = (char *) & character;
+            for (i = 0; i < charSize; i++) {
+                s.mValue[read - charSize + i] = bytes[i];
+            }
+        }
+
+        return s;
     }
 
     std::ostream & operator<<( std::ostream &output,
@@ -245,6 +291,42 @@ namespace busca_imd_core {
 
         return input;
     }
+
+    uint8_t readUtf8Char(std::istream &input, uint32_t &dest) {
+        uint8_t size = 0;
+        dest = 0;
+        char * letter = (char *) &dest;
+        input.read(letter, 1);
+        if ((*letter & UTF8_1BYTE) == UTF8_0BYTE) {
+            size = 1;
+        } else if ((*letter & UTF8_3BYTES) == UTF8_2BYTES) {
+            size = 2;
+        } else if ((*letter & UTF8_4BYTES) == UTF8_3BYTES) {
+            size = 3;
+        } else if ((*letter & UTF8_5BYTES) == UTF8_4BYTES) {
+            size = 4;
+        }
+
+        for (int i = 1; i < size; i++) {
+            input.read(&letter[i], 1);
+        }
+
+        return size;
+    }
+
+    void toUpperCase(uint32_t &a) {
+        if ((a & 0xa0c3) == 0xa0c3 ) {
+            a &= 0x9fc3;
+        }
+        if (a >= 'a' && a <= 'z') {
+            a &= 0x5F;
+        }
+    }
+
+    bool isAlphaCharacter(uint32_t a) {
+        return (a & 0xc3) == 0xc3 || (a >= 'a' && a <= 'z') || (a >= 'A' && a <='Z');
+    }
+
 }
 
 

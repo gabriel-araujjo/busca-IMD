@@ -17,13 +17,17 @@ using busca_imd_core::directUltraFastHash;
 
 namespace busca_imd_index {
 
+    int int_comparator(const int & a, const int & b) {
+        return a - b;
+    }
+
     //Constructor of the Index class
     Index::Index() : WordHashMap(directUltraFastHash), mFilePathUsage(ultraFastHash) { }
 
     //add an entry to the index (path of the file(AKA:name of the file), word to add, line where this word appears)
     void Index::addEntry(ShortString &filePath, ShortString &word, int line, bool forceInsertion) {
 
-        std::cout << "adding entry " << filePath << " -> " << word << " " << line << std::endl;
+//        std::cout << "adding entry " << filePath << " -> " << word << " " << line << std::endl;
 
         //list of the occurrences of word in in file
         List<int> *occurrencesList = getOrCreateOccurrencesList(&filePath, word);
@@ -33,6 +37,44 @@ namespace busca_imd_index {
         if (forceInsertion || !occurrencesList->contains(line)) {
             occurrencesList->add(line, -1);
         }
+    }
+
+    SearchResult * Index::search(SearchParams &params) {
+        SearchResult * results = new SearchResult(busca_imd_core::directUltraFastHash);
+
+        for (auto word : params.words) {
+            FileHashMap * index;
+            try {
+                index = get(word);
+            } catch (int e) {
+                if (params.exclusive) {
+                    //exclusive behavior, ia word is out there is no results
+                    for (auto entry : *results) {
+                        delete entry.value;
+                    }
+                    delete results;
+                    return nullptr;
+                } else {
+                    continue;
+                }
+            }
+
+            for (FileHashMap::Entry entry : *index) {
+                List<int> * list;
+                try {
+                    list = results->get(*entry.key);
+                } catch (int e) {
+                    results->put(*entry.key, new List<int>(*entry.value));
+                    continue;
+                }
+                if (params.exclusive) {
+                    list->intersection(*entry.value, int_comparator);
+                } else {
+                    list->join(*entry.value, int_comparator);
+                }
+            }
+        }
+        return results;
     }
 
     List<int> *Index::getOrCreateOccurrencesList(ShortString * filePath, ShortString &word) {
@@ -160,31 +202,31 @@ namespace busca_imd_index {
                                       const busca_imd_index::Index &index ) {
         HashMap<ShortString *, uint16_t > filePathReverseLookup(ultraFastHash);
 
-        std::cout << std::endl;
-        std::cout << "WRITING" << std::endl;
+//        std::cout << std::endl;
+//        std::cout << "WRITING" << std::endl;
 
         // write all filePath lookup
         uint16_t filePathPosition = (uint16_t) index.mFilePathUsage.size();
         //write filePath lookup size
-        std::cout << "Lookup Size " << filePathPosition << std::endl;
+//        std::cout << "Lookup Size " << filePathPosition << std::endl;
         output.write((char*) &filePathPosition, sizeof(uint16_t));
         for (auto entry : index.mFilePathUsage) {
             // write file path
-            std::cout << *entry.key << " -> " << (filePathPosition - 1) << std::endl;
+//            std::cout << *entry.key << " -> " << (filePathPosition - 1) << std::endl;
             output << *entry.key;
             // track filePath into local lookup
             filePathReverseLookup.put(entry.key, --filePathPosition);
         }
 
-        std::cout << std::endl;
+//        std::cout << std::endl;
         // write index
         uint16_t wordHashMapSize = (uint16_t) index.size();
         // write hashMap size
-        std::cout << "HashMap Size " << wordHashMapSize << std::endl;
+//        std::cout << "HashMap Size " << wordHashMapSize << std::endl;
         output.write((char*) &wordHashMapSize, sizeof(uint16_t));
         for (auto entry : index) {
             // write word
-            std::cout << "word " << entry.key << std::endl;
+//            std::cout << "word " << entry.key << std::endl;
             output << entry.key;
 
             // write occurrences
@@ -192,26 +234,26 @@ namespace busca_imd_index {
             uint16_t filePosition;
             uint16_t linesSize;
             // write occurrences size
-            std::cout << "\toccurrences size " << occurrencesSize << std::endl;
+//            std::cout << "\toccurrences size " << occurrencesSize << std::endl;
             output.write((char*) &occurrencesSize, sizeof(uint16_t));
             for (auto fileEntry : *entry.value) {
                 filePosition = filePathReverseLookup.get(fileEntry.key);
                 // write filePth reference from filePathReverseLookup
-                std::cout << "\tfile " << filePosition << " " << *fileEntry.key << std::endl;
+//                std::cout << "\tfile " << filePosition << " " << *fileEntry.key << std::endl;
                 output.write((char*) &filePosition, sizeof(uint16_t));
 
                 // writing lines
                 linesSize = (uint16_t) fileEntry.value->size();
-                std::cout << "\tlinhas (" << linesSize << ")";
+//                std::cout << "\tlinhas (" << linesSize << ")";
                 output.write((char*) &linesSize, sizeof(uint16_t));
                 for (auto line : *fileEntry.value) {
-                    std::cout << " " << line;
+//                    std::cout << " " << line;
                     output.write((char*) &line, sizeof(uint16_t));
                 }
-                std::cout << std::endl;
+//                std::cout << std::endl;
             }
         }
-        std::cout << std::endl;
+//        std::cout << std::endl;
         return output;
     }
 
@@ -221,15 +263,15 @@ namespace busca_imd_index {
                                busca_imd_index::Index &index ) {
         index.release();
 
-        std::cout << std::endl;
-        std::cout << "READING" << std::endl;
+//        std::cout << std::endl;
+//        std::cout << "READING" << std::endl;
 
         //Reading filePathLookup
         uint16_t filePathLookupSize;
         // reading file path lookup size
         input.read((char *) &filePathLookupSize, sizeof(uint16_t));
 
-        std::cout << "Lookup Size " << filePathLookupSize << std::endl;
+//        std::cout << "Lookup Size " << filePathLookupSize << std::endl;
 
         Array<ShortString *> filePathLookup(filePathLookupSize);
 
@@ -240,28 +282,28 @@ namespace busca_imd_index {
             filePathLookup[filePathLookupSize -1] = filePath;
             // reading file path
             input >> *filePath;
-            std::cout << *filePathLookup[filePathLookupSize -1] << " -> " << (filePathLookupSize -1) << std::endl;
+//            std::cout << *filePathLookup[filePathLookupSize -1] << " -> " << (filePathLookupSize -1) << std::endl;
             busca_imd_index::Index::FilePathHolder * holder = new busca_imd_index::Index::FilePathHolder;
             holder->filePathCopy = filePath;
             holder->usage = 0;
             index.mFilePathUsage.put(filePath, holder);
         }
 
-        std::cout << std::endl;
+//        std::cout << std::endl;
 
         // read index
         uint16_t wordHashMapSize;
         //reading word hash map size
         input.read((char *) &wordHashMapSize, sizeof(uint16_t));
 
-        std::cout << "HashMap Size " << wordHashMapSize << std::endl;
+//        std::cout << "HashMap Size " << wordHashMapSize << std::endl;
         // reading words
         ShortString word;
         busca_imd_index::FileHashMap * fileHashMap;
         for (;wordHashMapSize; --wordHashMapSize) {
             fileHashMap = new busca_imd_index::FileHashMap(ultraFastHash);
             input >> word;
-            std::cout << "word " << word << std::endl;
+//            std::cout << "word " << word << std::endl;
             index.put(word, fileHashMap);
 
             // read occurrences
@@ -273,29 +315,29 @@ namespace busca_imd_index {
             ShortString * file;
             // reading occurrences size
             input.read((char *) &occurrencesSize, sizeof(uint16_t));
-            std::cout << "\toccurrences size " << occurrencesSize << std::endl;
+//            std::cout << "\toccurrences size " << occurrencesSize << std::endl;
             for (;occurrencesSize; --occurrencesSize) {
                 // reading file position in lookup
                 input.read((char *) &filePosition, sizeof(uint16_t));
-                std::cout << "\tfile " << filePosition << " " << *filePathLookup[filePosition] << std::endl;
+//                std::cout << "\tfile " << filePosition << " " << *filePathLookup[filePosition] << std::endl;
                 occurrences = new List<int>;
 
                 // reading occurrences
                 // reading occurrences size
                 input.read((char *) &linesSize, sizeof(uint16_t));
-                std::cout << "\tlinhas (" << linesSize << ")";
+//                std::cout << "\tlinhas (" << linesSize << ")";
                 for(;linesSize;--linesSize) {
                     input.read((char *) &line, sizeof(uint16_t));
-                    std::cout << " " << line;
+//                    std::cout << " " << line;
                     occurrences->add(line);
                 }
-                std::cout << std::endl;
+//                std::cout << std::endl;
                 file = filePathLookup[filePosition];
                 fileHashMap->put(file, occurrences);
                 index.mFilePathUsage.get(file)->usage++;
             }
         }
-        std::cout << std::endl;
+//        std::cout << std::endl;
         return input;
     }
 

@@ -26,21 +26,11 @@ using busca_imd_core::List;
 using busca_imd_index::Index;
 using busca_imd_core::ShortString;
 using busca_imd_core::directUltraFastHash;
+using busca_imd_core::isAlphaCharacter;
+using busca_imd_core::toUpperCase;
+using busca_imd_core::readUtf8Char;
 
 namespace busca_imd_config {
-
-    bool my_isalpha(uint32_t a) {
-        return (a & 0xc3) == 0xc3 || (a >= 'a' && a <= 'z') || (a >= 'A' && a <='Z');
-    }
-
-    void toUpperCase(uint32_t &a) {
-        if ((a & 0xa0c3) == 0xa0c3 ) {
-            a &= 0x9fc3;
-        }
-        if (a >= 'a' && a <= 'z') {
-            a &= 0x5F;
-        }
-    }
 
     FileInfo::FileInfo() { }
     FileInfo::FileInfo(FileInfo const & other) :
@@ -111,7 +101,7 @@ namespace busca_imd_config {
             letterSize = readUtf8Char(in, letter);
 
             char * l = (char *) &letter;
-            if (my_isalpha(letter)) {
+            if (isAlphaCharacter(letter)) {
                 toUpperCase(letter);
                 for (; letterSize; --letterSize, ++l) {
                     word_charList.add(*l);
@@ -136,31 +126,8 @@ namespace busca_imd_config {
             totalWords++;
             word_charList.clear();
         }
-        std::cout << "fim da leitura" << std::endl;
+//        std::cout << "fim da leitura" << std::endl;
     }
-
-    uint8_t FileInfo::readUtf8Char(std::istream &input, uint32_t &dest) {
-        uint8_t size = 0;
-        dest = 0;
-        char * letter = (char *) &dest;
-        input.read(letter, 1);
-        if ((*letter & UTF8_1BYTE) == UTF8_0BYTE) {
-            size = 1;
-        } else if ((*letter & UTF8_3BYTES) == UTF8_2BYTES) {
-            size = 2;
-        } else if ((*letter & UTF8_4BYTES) == UTF8_3BYTES) {
-            size = 3;
-        } else if ((*letter & UTF8_5BYTES) == UTF8_4BYTES) {
-            size = 4;
-        }
-
-        for (int i = 1; i < size; i++) {
-            input.read(&letter[i], 1);
-        }
-
-        return size;
-    }
-
 
     std::ostream &operator<<( std::ostream &output,
                               const busca_imd_config::FileInfo &fileInfo ) {

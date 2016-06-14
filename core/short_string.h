@@ -11,6 +11,12 @@
 
 namespace busca_imd_core{
 
+    bool isAlphaCharacter(uint32_t a);
+
+    void toUpperCase(uint32_t &a);
+
+    uint8_t readUtf8Char(std::istream &input, uint32_t &dest);
+
     class ShortString;
 
     uint32_t ultraFastHash(ShortString * const & key);
@@ -52,9 +58,11 @@ namespace busca_imd_core{
 
         const uint16_t length() const;
 
-        char * asCharArray() const;
+        char * asCharArray(char * target = nullptr) const;
 
         int compare(ShortString const & ss) const;
+
+        ShortString toUpperCase() const;
 
         friend std::ostream  &operator<<( std::ostream &output,
                                     const ShortString &ss );

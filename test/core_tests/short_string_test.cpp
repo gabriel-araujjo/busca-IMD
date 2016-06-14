@@ -146,3 +146,16 @@ TEST(ShortString, HashColision) {
     EXPECT_NEAR(dispersionRate(0x800), 1, 0.30);
 }
 
+TEST(ShortString, UpperCase) {
+    ShortString a("Gabriel Araújo");
+
+    ShortString b = a.toUpperCase();
+
+
+    std::cout << std::endl << a.length() << std::endl;
+    std::cout << std::endl << b.length() << std::endl;
+    std::cout << std::endl << a.asCharArray() << std::endl;
+    std::cout << std::endl << b.asCharArray() << std::endl;
+    SUCCEED();
+}
+

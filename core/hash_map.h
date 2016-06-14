@@ -12,6 +12,8 @@
 #define HASH_MAP_MAX_LOAD_FACTOR 0.75
 #define HASH_MAP_MIN_LOAD_FACTOR 0.25
 
+
+
 #include "array.h"
 #include "iterator.h"
 #include "list.h"
@@ -300,6 +302,7 @@ namespace busca_imd_core {
 
     template <typename Key, typename Value>
     Iterator<typename HashMap<Key, Value>::Entry> HashMap<Key, Value>::begin() const {
+//        std::cout << "HM cursor mEntries = " << mEntries << std::endl;
         return Iterator<Entry>(new HashMapCursor(this));
     }
 

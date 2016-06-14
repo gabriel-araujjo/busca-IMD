@@ -30,16 +30,16 @@ namespace busca_imd_config{
 
     class Config{
     private:
-
+        bool initialized;
         char * mInfoListFilePath;
         char * mIndexFilePath;
         busca_imd_core::List<FileInfo> mInfoList;
 
         char * getConfigDirPath();
 
-        void loadIndex();
+        void internalLoadIndex();
 
-        void loadInfoList();
+        void internalLoadInfoList();
 
         void persistIndex();
 
@@ -47,9 +47,11 @@ namespace busca_imd_config{
 
         Config();
 
+        void init(bool loadOnlyIndex);
+
     public:
 
-        static Config & getInstance();
+
 
         Config(Config const&) = delete;
         void operator=(Config const&) = delete;
@@ -57,7 +59,18 @@ namespace busca_imd_config{
         void insertOrUpdateFile(busca_imd_core::ShortString filePath);
         void removeFile(busca_imd_core::ShortString filePath);
         busca_imd_core::List<FileInfo> getFiles();
-        void orderFiles(busca_imd_core::List<FileInfo> &files, char order);
+
+        // façade methods
+        static Config & getInstance(bool loadOnlyIndex = false);
+
+        static void loadIndex();
+
+        static int insertFiles(int argc, char ** argv);
+
+        static int removeFiles(int argc, char ** argv);
+
+        static int listFiles(int argc, char ** argv);
+
     };
 
 }
