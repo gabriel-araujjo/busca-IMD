@@ -339,7 +339,7 @@ namespace busca_imd_core {
         Node thatCursor = other.mFirst->next;
 
         Node toRemove;
-        while(thisCursor != mLast && thisCursor != other.mLast) {
+        while(thisCursor != mLast && thatCursor != other.mLast) {
             int result = comparator(*thisCursor->element, *thatCursor->element);
             if (result < 0) {
                 toRemove = thisCursor;
@@ -368,8 +368,8 @@ namespace busca_imd_core {
         Node thatCursor = other.mFirst->next;
 
         Node toAdd;
-        while(thisCursor != mLast && thisCursor != other.mLast) {
-            int result = comparator(*thisCursor->element, *thatCursor->element);
+        while(thisCursor != mLast && thatCursor != other.mLast) {
+            int result = comparator(*(thisCursor->element), *(thatCursor->element));
             if (result < 0) {
                 thisCursor = thisCursor->next;
             } else if (result == 0) {
