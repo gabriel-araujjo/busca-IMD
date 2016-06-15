@@ -83,8 +83,11 @@ namespace busca_imd_config {
     time_t FileInfo::getFileLastModifiedAttr(char * filePath_charArr) {
         struct stat attr;
         stat(filePath_charArr, &attr);
-
+#if defined(WIN32) || defined(_WIN32)
+        return attr.st_ctime;
+#else
         return attr.st_ctim.tv_sec;
+#endif
     }
 
     void FileInfo::readWords(char * filePath_charArr) {

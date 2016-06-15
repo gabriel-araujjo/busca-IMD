@@ -5,7 +5,9 @@
 
 #include <stdlib.h>
 #include <fstream>
-
+#if defined(WIN32) || defined(_WIN32)
+#include <fileapi.h>
+#endif
 #include "index.h"
 #include "config_file_utils.h"
 #include "config.h"
@@ -175,7 +177,12 @@ namespace busca_imd_config {
         //insert a new file on the search base
         ShortString shortString;
         for (int i = 2; i < argc; i++) {
+#if defined(WIN32) || defined(_WIN32)
+            char *file = new char[strlen(argv[i])+1];
+            GetFullPathName(argv[i], strlen(argv[i])+1, file, 0);
+#else
             char *file = realpath(argv[i], nullptr);
+#endif
             std::cout << std::endl <<" File = " << file << std::endl;
             if (!file) continue;
             shortString = file;
@@ -184,8 +191,10 @@ namespace busca_imd_config {
                 std::cout << ">> Arquivo \"" << file << "\" inserido/atualizado." << std::endl;
             } catch (int fileNotFound) {
                 std::cout << ">> Arquivo \"" << file << "\" não encontrado." << std::endl;
+                delete file;
                 exit(1);
             }
+            delete file;
             //insert one or more files to the search base
         }//if it has zero files to insert, print a message explaining that the "-i" argument need at least
         //one file directory
@@ -195,7 +204,12 @@ namespace busca_imd_config {
         //remove a file from the search base
         ShortString shortString;
         for (int i = 2; i < argc; i++) {
+#if defined(WIN32) || defined(_WIN32)
+            char *file = new char[strlen(argv[i])+1];
+            GetFullPathName(argv[i], strlen(argv[i])+1, file, 0);
+#else
             char *file = realpath(argv[i], nullptr);
+#endif
             shortString = file;
             try {
                 Config::getInstance().removeFile(shortString);
