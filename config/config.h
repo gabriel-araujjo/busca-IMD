@@ -16,7 +16,7 @@
 #include "short_string.h"
 #include "index.h"
 
-#define CONFIG_DIR_NAME "debugimd"
+#define CONFIG_DIR_NAME ".buscaimd"
 #define INDEX_FILE_PATH "index_file_imd"
 #define INDEX_WORD_PATH "index_words_imd"
 

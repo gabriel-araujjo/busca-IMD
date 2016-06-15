@@ -17,8 +17,10 @@
 #include <string.h>
 
 #include "config_file_utils.h"
+#include "short_string.h"
 
 using namespace std;
+using busca_imd_core::roundUpToPowerOfTwo;
 
 namespace busca_imd_config{
     char * getHomeDir() {
@@ -27,7 +29,9 @@ namespace busca_imd_config{
         char * homeDrive = getenv("HOMEDRIVE");
         char * homePath = getenv("HOMEPATH");
         if (homeDrive && homePath) {
-            home = new char[strlen(homeDrive) + strlen(homePath) + 1];
+            uint16_t pathLength = (uint16_t) (strlen(homeDrive) + strlen(homePath) + 1);
+            roundUpToPowerOfTwo(pathLength);
+            home = new char[pathLength];
             *home = '\0';
             strcat(home, homeDrive);
             strcat(home, homePath);
@@ -35,7 +39,9 @@ namespace busca_imd_config{
 #else
         char * homePath = getenv("HOME");
         if (homePath) {
-            home = new char(strlen(homePath) + 1);
+            uint16_t pathLength = (uint16_t) (strlen(homePath) + 1);
+            roundUpToPowerOfTwo(pathLength);
+            home = new char[pathLength];
             strcpy(home, homePath);
         }
 #endif
@@ -71,7 +77,9 @@ namespace busca_imd_config{
     }
 
     char * joinPath(char * parent, const char * file){
-        char * joinedPath = new char[(strlen(parent) + strlen(FILE_SEPARATOR) + strlen(file)) * sizeof(char)];
+        uint16_t pathLength = (uint16_t) (strlen(parent) + strlen(FILE_SEPARATOR) + strlen(file));
+        roundUpToPowerOfTwo(pathLength);
+        char * joinedPath = new char[pathLength];
         strcpy(joinedPath, parent);
         strcat(joinedPath, FILE_SEPARATOR);
         strcat(joinedPath, file);

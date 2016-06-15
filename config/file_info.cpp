@@ -57,9 +57,9 @@ namespace busca_imd_config {
             lastModified = getFileLastModifiedAttr(filePath_charArr);
             std::cout << std::endl << "reading words " << std::endl;
             readWords(filePath_charArr);
-            delete filePath_charArr;
+            delete[] filePath_charArr;
         } else {
-            delete filePath_charArr;
+            delete[] filePath_charArr;
             throw FILE_NOT_FOUND;
         }
     }
@@ -73,16 +73,17 @@ namespace busca_imd_config {
             totalWords = 0;
             lastModified = lastFileModification;
             readWords(filePath_charArr);
-            delete filePath_charArr;
+            delete[] filePath_charArr;
             return true;
         }
-        delete filePath_charArr;
+        delete[] filePath_charArr;
         return false;
     }
 
     time_t FileInfo::getFileLastModifiedAttr(char * filePath_charArr) {
         struct stat attr;
         stat(filePath_charArr, &attr);
+
         return attr.st_ctim.tv_sec;
     }
 

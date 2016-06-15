@@ -12,7 +12,7 @@
 #define HASH_MAP_MAX_LOAD_FACTOR 0.75
 #define HASH_MAP_MIN_LOAD_FACTOR 0.25
 
-
+#include <iostream>
 
 #include "array.h"
 #include "iterator.h"
@@ -136,6 +136,8 @@ namespace busca_imd_core {
     bool HashMap<Key, Value>::put(Key key, Value value) {
         ptrEntry entry = getEntry(key, true);
         entry->entry.value = value;
+        std::cout << "index size = " << mEntries->size() << std::endl;
+        std::cout << "size = " << mSize << std::endl;
         return true;
     }
 
@@ -265,7 +267,9 @@ namespace busca_imd_core {
             mCalcHash = other.mCalcHash;
 
             clear();
-            mEntries->resize(other.mEntries->size(), nullptr);
+            delete mEntries;
+            mEntries = nullptr;
+            mEntries = new Array<ptrEntry>(other.mEntries->size(), nullptr);
 
 
             for (int i = 0; i < mEntries->size(); ++i) {
@@ -372,7 +376,7 @@ namespace busca_imd_core {
     template <typename Key, typename Value>
     bool HashMap<Key, Value>::HashMapCursor::samePosition(typename Iterator<HashMap<Key, Value>::Entry>::Cursor * const other) {
         return mCoveredValues == ((HashMap<Key, Value>::HashMapCursor *)other)->mCoveredValues;
-    };
+    }
 
 }
 

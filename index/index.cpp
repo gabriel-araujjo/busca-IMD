@@ -4,6 +4,7 @@
 
 #include <iosfwd>
 #include <iostream>
+#include <cassert>
 
 #include "array.h"
 #include "index.h"
@@ -188,6 +189,7 @@ namespace busca_imd_index {
     }
 
     void Index::release() {
+        if (!size()) return;
         List<ShortString> words;
         for (auto entry : *this) {
             words.add(entry.key);
@@ -263,15 +265,17 @@ namespace busca_imd_index {
                                busca_imd_index::Index &index ) {
         index.release();
 
-//        std::cout << std::endl;
-//        std::cout << "READING" << std::endl;
+        std::cout << std::endl;
+        std::cout << "READING" << std::endl;
 
         //Reading filePathLookup
         uint16_t filePathLookupSize;
         // reading file path lookup size
         input.read((char *) &filePathLookupSize, sizeof(uint16_t));
 
-//        std::cout << "Lookup Size " << filePathLookupSize << std::endl;
+        assert(filePathLookupSize > 0);
+
+        std::cout << "Lookup Size " << filePathLookupSize << std::endl;
 
         Array<ShortString *> filePathLookup(filePathLookupSize);
 
@@ -282,7 +286,7 @@ namespace busca_imd_index {
             filePathLookup[filePathLookupSize -1] = filePath;
             // reading file path
             input >> *filePath;
-//            std::cout << *filePathLookup[filePathLookupSize -1] << " -> " << (filePathLookupSize -1) << std::endl;
+            std::cout << *filePathLookup[filePathLookupSize -1] << " -> " << (filePathLookupSize -1) << std::endl;
             busca_imd_index::Index::FilePathHolder * holder = new busca_imd_index::Index::FilePathHolder;
             holder->filePathCopy = filePath;
             holder->usage = 0;
@@ -296,14 +300,14 @@ namespace busca_imd_index {
         //reading word hash map size
         input.read((char *) &wordHashMapSize, sizeof(uint16_t));
 
-//        std::cout << "HashMap Size " << wordHashMapSize << std::endl;
+        std::cout << "HashMap Size " << wordHashMapSize << std::endl;
         // reading words
         ShortString word;
         busca_imd_index::FileHashMap * fileHashMap;
         for (;wordHashMapSize; --wordHashMapSize) {
             fileHashMap = new busca_imd_index::FileHashMap(ultraFastHash);
             input >> word;
-//            std::cout << "word " << word << std::endl;
+            std::cout << "word " << word << std::endl;
             index.put(word, fileHashMap);
 
             // read occurrences
@@ -315,29 +319,31 @@ namespace busca_imd_index {
             ShortString * file;
             // reading occurrences size
             input.read((char *) &occurrencesSize, sizeof(uint16_t));
-//            std::cout << "\toccurrences size " << occurrencesSize << std::endl;
+            std::cout << "\toccurrences size " << occurrencesSize << std::endl;
             for (;occurrencesSize; --occurrencesSize) {
                 // reading file position in lookup
                 input.read((char *) &filePosition, sizeof(uint16_t));
-//                std::cout << "\tfile " << filePosition << " " << *filePathLookup[filePosition] << std::endl;
+                assert(filePosition < filePathLookup.size());
+
+                std::cout << "\tfile " << filePosition << " " << *filePathLookup[filePosition] << std::endl;
                 occurrences = new List<int>;
 
                 // reading occurrences
                 // reading occurrences size
                 input.read((char *) &linesSize, sizeof(uint16_t));
-//                std::cout << "\tlinhas (" << linesSize << ")";
+                std::cout << "\tlinhas (" << linesSize << ")";
                 for(;linesSize;--linesSize) {
                     input.read((char *) &line, sizeof(uint16_t));
-//                    std::cout << " " << line;
+                    std::cout << " " << line;
                     occurrences->add(line);
                 }
-//                std::cout << std::endl;
+                std::cout << std::endl;
                 file = filePathLookup[filePosition];
                 fileHashMap->put(file, occurrences);
                 index.mFilePathUsage.get(file)->usage++;
             }
         }
-//        std::cout << std::endl;
+        std::cout << std::endl;
         return input;
     }
 

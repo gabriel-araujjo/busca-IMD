@@ -5,10 +5,6 @@
 #define COMMAND_LIST 'l'
 #define COMMAND_SEARCH 'b'
 
-#define SEARCH_ORDER_ALPHABETICAL 'A'
-#define SEARCH_ORDER_OCCURRENCES 'C'
-#define SEARCH_ORDER_INSERTION 'I'
-
 #include <stdlib.h>
 #include <string>
 #include "config.h"
@@ -41,8 +37,11 @@ int main(int argc, char ** argv) {
             return Config::removeFiles(argc, argv);
         case COMMAND_LIST:
             return Config::listFiles(argc, argv);
-        default:
+        case COMMAND_SEARCH:
             break;
+        default:
+            std::cout << "Comando inválido" << std::endl;
+            return 1;
     }
 
     Config::loadIndex();
@@ -52,6 +51,11 @@ int main(int argc, char ** argv) {
     if (!searchParams.words.size()) return 1;
 
     SearchResult * result = Index::getInstance().search(searchParams);
+
+    if (!result) {
+        std::cout << "Nenhum Resultado encontrado" << std::endl;
+        return 0;
+    }
 
     char filePath_charArray[4000];
     for (auto entry : *result) {
@@ -95,7 +99,7 @@ void checkIsValidArgs(int argc, char ** argv) {
 void readSearchParams(int argc, char **argv, SearchParams &searchParams) {
     searchParams.exclusive = false;
     searchParams.showTime = false;
-    searchParams.order = SEARCH_ORDER_INSERTION;
+    searchParams.order = 'I';
     for (int i = 1; i < argc; ++i) {
         switch (*argv[i]) {
             case '-':

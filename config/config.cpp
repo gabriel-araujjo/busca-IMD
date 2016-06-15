@@ -31,7 +31,7 @@ namespace busca_imd_config {
         char *cfgDir = getConfigDirPath();
         mIndexFilePath = joinPath(cfgDir, INDEX_WORD_PATH);
         mInfoListFilePath = joinPath(cfgDir, INDEX_FILE_PATH);
-        delete cfgDir;
+        delete []cfgDir;
     }
 
     void Config::init(bool loadOnlyIndex) {
@@ -50,7 +50,7 @@ namespace busca_imd_config {
         char * home = getHomeDir();
         char * config_dir = joinPath(home, CONFIG_DIR_NAME);
 
-        delete home;
+        delete []home;
 
         if(!dirExists(config_dir)){
             createHiddenDir(config_dir);
@@ -64,7 +64,7 @@ namespace busca_imd_config {
         if (!fileExists(mIndexFilePath)) return;
         try {
             std::ifstream in;
-            in.open(mIndexFilePath, std::ios::in);
+            in.open(mIndexFilePath, std::ios::in | std::ios::binary);
             if (!in.is_open()) {
                 return;
             }
@@ -176,16 +176,16 @@ namespace busca_imd_config {
         ShortString shortString;
         for (int i = 2; i < argc; i++) {
             char *file = realpath(argv[i], nullptr);
+            std::cout << std::endl <<" File = " << file << std::endl;
+            if (!file) continue;
             shortString = file;
             try {
                 Config::getInstance().insertOrUpdateFile(shortString);
                 std::cout << ">> Arquivo \"" << file << "\" inserido/atualizado." << std::endl;
             } catch (int fileNotFound) {
                 std::cout << ">> Arquivo \"" << file << "\" não encontrado." << std::endl;
-                delete file;
                 exit(1);
             }
-            delete file;
             //insert one or more files to the search base
         }//if it has zero files to insert, print a message explaining that the "-i" argument need at least
         //one file directory
@@ -237,7 +237,7 @@ namespace busca_imd_config {
             for (FileInfo fileInfo : files) {
                 char * file_charArr = fileInfo.filePath.asCharArray();
                 std::cout << "\t-\t\"" << file_charArr << "\"" << std::endl;
-                delete file_charArr;
+                delete[] file_charArr;
             }
         } else {
             std::cout << ">> Base de buscas vazia" << std::endl;

@@ -25,8 +25,8 @@ namespace busca_imd_core {
 
         unsigned int size();
 
-        void resize(unsigned int newSize);
-        void resize(unsigned int newSize, Element fillWith);
+//        void resize(unsigned int newSize);
+//        void resize(unsigned int newSize, Element fillWith);
 
 
         // Obtem ou adiciona um elemento a uma determinada posição no array
@@ -78,7 +78,7 @@ namespace busca_imd_core {
 
     template <typename Element>
     Array<Element>& Array<Element>::operator=(const Array &other) {
-        delete mData;
+        delete[] mData;
         mSize = other.mSize;
         if (other.mSize) {
             mData = new Element[mSize];
@@ -98,7 +98,7 @@ namespace busca_imd_core {
 
     template <typename Element>
     Array<Element>::~Array() {
-        delete mData;
+        delete[] mData;
         mSize = 0;
     }
 
@@ -126,38 +126,46 @@ namespace busca_imd_core {
         return mData[position];
     }
 
-    template <typename Element>
-    void Array<Element>::resize(unsigned int newSize) {
-        if (mData == nullptr)
-            mData = new Element[newSize];
-        else if (newSize)
-            mData = (Element *) realloc(mData, newSize);
-        else {
-            delete mData;
-            mData = nullptr;
-        }
-
-        mSize = newSize;
-    }
-
-    template <typename Element>
-    void Array<Element>::resize(unsigned int newSize, Element fillWith) {
-        if (newSize == mSize) return;
-        if (mData == nullptr)
-            mData = new Element[newSize];
-        else if (newSize)
-            mData = (Element *) realloc(mData, newSize * sizeof(Element));
-        else {
-            delete mData;
-            mData = nullptr;
-        }
-
-        for (unsigned int i = mSize; i < newSize; i++) {
-            mData[i] = fillWith;
-        }
-
-        mSize = newSize;
-    }
+//    template <typename Element>
+//    void Array<Element>::resize(unsigned int newSize) {
+//        if (mData == nullptr)
+//            mData = new Element[newSize];
+//        else if (newSize) {
+//            if (mData) {
+//                mData = (Element *) realloc(mData, newSize * sizeof(Element));
+//            } else {
+//                mData = new Element[newSize];
+//            }
+//        } else {
+//            delete[] mData;
+//            mData = nullptr;
+//        }
+//
+//        mSize = newSize;
+//    }
+//
+//    template <typename Element>
+//    void Array<Element>::resize(unsigned int newSize, Element fillWith) {
+//        if (newSize == mSize) return;
+//        if (mData == nullptr)
+//            mData = new Element[newSize];
+//        else if (newSize){
+//            if (mData) {
+//                mData = (Element *) realloc(mData, newSize * sizeof(Element));
+//            } else {
+//                mData = new Element[newSize];
+//            }
+//        } else {
+//            delete[] mData;
+//            mData = nullptr;
+//        }
+//
+//        for (unsigned int i = mSize; i < newSize; i++) {
+//            mData[i] = fillWith;
+//        }
+//
+//        mSize = newSize;
+//    }
 
 }
 

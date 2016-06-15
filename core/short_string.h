@@ -11,6 +11,8 @@
 
 namespace busca_imd_core{
 
+    void roundUpToPowerOfTwo(uint16_t &i);
+
     bool isAlphaCharacter(uint32_t a);
 
     void toUpperCase(uint32_t &a);
@@ -27,6 +29,7 @@ namespace busca_imd_core{
     private:
         char * mValue;
         uint16_t mLength;
+        uint16_t mAllocatedSize;
 
         void copy(const char * const & other);
         void copy(ShortString const & other);

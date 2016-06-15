@@ -5,6 +5,7 @@ add_definitions(-O0)
 add_definitions(-g)
 add_definitions(-std=c++11)
 add_definitions(-march=native)
+add_definitions(-pedantic)
 
 set(SOURCE_FILES main.cpp)
 add_executable(busca_imd ${SOURCE_FILES})

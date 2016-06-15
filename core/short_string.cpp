@@ -8,12 +8,13 @@
 #define UTF8_4BYTES 0xF0
 #define UTF8_5BYTES 0xF8
 
+#define SHORT_STRING_MIN_SIZE 16
+
 #include <string.h>
 #include <streambuf>
 #include <ostream>
 #include <istream>
 #include <locale>
-#include <malloc.h>
 #include <iostream>
 #include <nmmintrin.h>
 
@@ -28,16 +29,65 @@ namespace busca_imd_core {
         }
     };
 
+    void roundUpToPowerOfTwo(uint16_t &i) {
+
+//        std::cout << "change " << i ;
+
+
+        if (i + 1 < SHORT_STRING_MIN_SIZE)
+            i = SHORT_STRING_MIN_SIZE;
+
+        // "Smear" the high-order bit all the way to the right.
+        i |= i >>  1;
+        i |= i >>  2;
+        i |= i >>  4;
+        i |= i >>  8;
+
+        i++;
+
+//        std::cout << " to " << i << std::endl;
+    }
+
     void ShortString::copy(const char *const & word) {
         mLength = (uint16_t) strlen(word);
-        mValue = (char *) realloc(mValue, mLength * sizeof(char));
+        if (!mLength) {
+            delete [] mValue;
+            mValue = nullptr;
+            mAllocatedSize = 0;
+            return;
+        }
+        uint16_t i = mLength;
+        roundUpToPowerOfTwo(i);
+        if (i != mAllocatedSize) {
+            if (mValue) {
+                delete[] mValue;
+                mValue = nullptr;
+            }
+            mValue = new char[i];
+        }
+        mAllocatedSize = i;
         strcpy(mValue, word);
     }
 
     void ShortString::copy(List<char> const & list) {
         mLength = (uint16_t) list.size();
-        mValue = (char *) realloc(mValue, mLength * sizeof(char));
-        int i = 0;
+        if (!mLength) {
+            delete [] mValue;
+            mValue = nullptr;
+            mAllocatedSize = 0;
+            return;
+        }
+        uint16_t  i = mLength;
+        roundUpToPowerOfTwo(i);
+        if (i != mAllocatedSize) {
+            if (mValue) {
+                delete[] mValue;
+                mValue = nullptr;
+            }
+            mValue = new char[i];
+        }
+        mAllocatedSize = i;
+        i = 0;
         for (char c : list) {
             mValue[i++] = c;
         }
@@ -47,35 +97,45 @@ namespace busca_imd_core {
         if (this == &other)
             return;
         mLength = other.mLength;
-        mValue = (char *) realloc(mValue, mLength * sizeof(char));
+        if (!mLength) {
+            delete [] mValue;
+            mValue = nullptr;
+            mAllocatedSize = 0;
+            return;
+        }
+        uint16_t i = other.mAllocatedSize;
+        roundUpToPowerOfTwo(i);
+        if (i != mAllocatedSize) {
+            if (mValue) {
+                delete[] mValue;
+                mValue = nullptr;
+            }
+            mValue = new char[i];
+        }
+        mAllocatedSize = i;
         strncpy(mValue, other.mValue, mLength);
     }
 
-    ShortString::ShortString(): mValue(nullptr), mLength(0) {
-        mLength = 0;
-        mValue = nullptr;
+    ShortString::ShortString(): mValue(nullptr), mLength(0), mAllocatedSize(0) {
     }
 
-    ShortString::ShortString(char const * word) {
-        mValue = nullptr;
+    ShortString::ShortString(char const * word):mValue(nullptr), mLength(0), mAllocatedSize(0) {
         copy(word);
     }
 
 
-    ShortString::ShortString(List<char> const & list) {
-        mValue = nullptr;
+    ShortString::ShortString(List<char> const & list): mValue(nullptr), mLength(0), mAllocatedSize(0) {
         copy(list);
     }
 
-    ShortString::ShortString(ShortString const & other) {
-        mValue = nullptr;
+    ShortString::ShortString(ShortString const & other) : mValue(nullptr), mLength(0), mAllocatedSize(0) {
         copy(other);
     }
 
 
     ShortString::~ShortString() {
         if (mValue != nullptr) {
-            delete mValue;
+            delete[] mValue;
             mValue = nullptr;
         }
     }
@@ -215,7 +275,7 @@ namespace busca_imd_core {
 
     char *ShortString::asCharArray(char * target) const {
         if (!target){
-            target = new char[mLength+1];
+            target = new char[mAllocatedSize];
         }
 
         strncpy(target, mValue, mLength);
@@ -234,8 +294,8 @@ namespace busca_imd_core {
 
         char *thisValue = asCharArray(), *thatValue = ss.asCharArray();
         int value = strcoll(thisValue, thatValue);
-        delete thisValue;
-        delete thatValue;
+        delete[] thisValue;
+        delete[] thatValue;
         return value;
     }
 
@@ -249,7 +309,8 @@ namespace busca_imd_core {
         std::istream in(&inputSrc);
 
         s.mLength = mLength;
-        s.mValue = (char *) realloc(s.mValue, s.mLength * sizeof(char));
+        s.mAllocatedSize = mAllocatedSize;
+        s.mValue = new char[s.mAllocatedSize];
 
         while (read < mLength) {
 
@@ -281,11 +342,22 @@ namespace busca_imd_core {
                                busca_imd_core::ShortString &ss ) {
 
         input.read((char*) &ss.mLength, sizeof(uint16_t));
-        if (ss.mLength > 0 ) {
-            ss.mValue = (char *) realloc(ss.mValue, ss.mLength * sizeof(char));
+
+        uint16_t i = ss.mLength;
+
+        if (ss.mLength > 0) {
+            busca_imd_core::roundUpToPowerOfTwo(i);
+            if (i != ss.mAllocatedSize) {
+                if (ss.mValue) {
+                    delete[] ss.mValue;
+                    ss.mValue = nullptr;
+                }
+                ss.mValue = new char[i];
+                ss.mAllocatedSize = i;
+            }
             input.read(ss.mValue, ss.length());
         } else {
-            delete ss.mValue;
+            delete[] ss.mValue;
             ss.mValue = nullptr;
         }
 

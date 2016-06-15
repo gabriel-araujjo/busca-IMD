@@ -27,9 +27,9 @@ namespace busca_imd_core {
 
         Iterator(const Iterator<Element> & other);
 
-        Element & operator*();;
+        Element & operator*();
 
-        Iterator<Element> & operator++();;
+        Iterator<Element> & operator++();
 
         Iterator & operator=(const Iterator & other);
 

@@ -151,11 +151,12 @@ TEST(ShortString, UpperCase) {
 
     ShortString b = a.toUpperCase();
 
-
+    char * buff = new char[32];
     std::cout << std::endl << a.length() << std::endl;
     std::cout << std::endl << b.length() << std::endl;
-    std::cout << std::endl << a.asCharArray() << std::endl;
-    std::cout << std::endl << b.asCharArray() << std::endl;
+    std::cout << std::endl << a.asCharArray(buff) << std::endl;
+    std::cout << std::endl << b.asCharArray(buff) << std::endl;
+    delete [] buff;
     SUCCEED();
 }
 

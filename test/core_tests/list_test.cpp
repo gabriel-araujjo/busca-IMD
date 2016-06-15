@@ -7,6 +7,15 @@
 using busca_imd_core::List;
 using busca_imd_core::Iterator;
 
+struct bigStruct {
+    long long int a;
+    long long int b;
+    long long int c;
+    long long int d;
+    long long int e;
+    long long int f;
+    long long int g;
+};
 
 int int_comparator (const int & a, const int & b) {
     return a - b;
@@ -24,6 +33,18 @@ TEST(List, Insert) {
     EXPECT_EQ(list.size(), 11);
     for (int i = 0; i < 11; i++) {
         EXPECT_EQ(list.get(i), i);
+    }
+}
+
+TEST(List, Stress) {
+
+    List<bigStruct> list;
+
+    std::cout << std::endl <<  "sizeof bigStruct" << sizeof(bigStruct) << std::endl;
+
+    for (unsigned int i = 0; i < 10000; i++) {
+        bigStruct a;
+        list.add(a);
     }
 }
 
