@@ -34,7 +34,10 @@ namespace busca_imd_config {
 
     FileInfo::FileInfo() { }
     FileInfo::FileInfo(FileInfo const & other) :
-            filePath(other.filePath), totalWords(other.totalWords), lastModified(other.lastModified) {
+            filePath(other.filePath),
+            totalWords(other.totalWords),
+            lastModified(other.lastModified),
+            insertionDate(other.insertionDate) {
 
     }
 
@@ -42,6 +45,7 @@ namespace busca_imd_config {
         filePath = other.filePath;
         totalWords = other.totalWords;
         lastModified = other.lastModified;
+        insertionDate = other.insertionDate;
         return *this;
     }
 
@@ -52,10 +56,11 @@ namespace busca_imd_config {
     FileInfo::FileInfo(ShortString const & file) :
             filePath(file), totalWords(0), lastModified(0) {
         char * filePath_charArr = filePath.asCharArray();
-        std::cout << std::endl << "checking existency of file" << filePath_charArr << std::endl;
+//        std::cout << std::endl << "checking existency of file" << filePath_charArr << std::endl;
         if (fileExists(filePath_charArr)) {
             lastModified = getFileLastModifiedAttr(filePath_charArr);
-            std::cout << std::endl << "reading words " << std::endl;
+            time(&insertionDate);
+//            std::cout << std::endl << "reading words " << std::endl;
             readWords(filePath_charArr);
             delete[] filePath_charArr;
         } else {
@@ -68,7 +73,7 @@ namespace busca_imd_config {
         char * filePath_charArr = filePath.asCharArray();
         time_t lastFileModification = getFileLastModifiedAttr(filePath_charArr);
         if (lastModified < lastFileModification) {
-
+            time(&insertionDate);
             Index::getInstance().removeFile(filePath);
             totalWords = 0;
             lastModified = lastFileModification;
@@ -138,6 +143,7 @@ namespace busca_imd_config {
         output << fileInfo.filePath;
         output.write((char *) &fileInfo.lastModified, sizeof(time_t));
         output.write((char *) &fileInfo.totalWords, sizeof(int));
+        output.write((char *) &fileInfo.insertionDate, sizeof(time_t));
         return output;
     }
 
@@ -146,6 +152,7 @@ namespace busca_imd_config {
         input >> fileInfo.filePath;
         input.read((char*) &fileInfo.lastModified, sizeof(time_t));
         input.read((char*) &fileInfo.totalWords, sizeof(int));
+        input.read((char*) &fileInfo.insertionDate, sizeof(time_t));
         return input;
     }
 }

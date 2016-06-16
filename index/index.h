@@ -43,6 +43,8 @@ namespace busca_imd_index {
 
     typedef busca_imd_core::HashMap<busca_imd_core::ShortString, busca_imd_core::List<int>*> SearchResult;
 
+    typedef busca_imd_core::List<busca_imd_index::SearchResult::Entry> SearchResultEntryList;
+
     class Index : public WordHashMap{
 
     private:

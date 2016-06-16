@@ -17,6 +17,8 @@ using busca_imd_core::Array;
 using busca_imd_core::List;
 using busca_imd_core::ShortString;
 using busca_imd_index::Index;
+using busca_imd_index::SearchResult;
+using busca_imd_index::SearchResultEntryList;
 
 namespace busca_imd_config {
 
@@ -28,7 +30,30 @@ namespace busca_imd_config {
         return a.filePath.compare(b.filePath);
     }
 
-    Config::Config() : initialized(false){
+    int searchEntryAlphabeticalOrder(SearchResult::Entry const & a, SearchResult::Entry const & b) {
+        return a.key.compare(b.key);
+    }
+
+    int searchEntryReverseWordsCountOrder(SearchResult::Entry const & a, SearchResult::Entry const & b) {
+        return b.value->size() - a.value->size();
+    }
+
+    int searchEntryFileInsertionOrder(SearchResult::Entry const & a, SearchResult::Entry const & b) {
+
+        ShortString file = a.key;
+        time_t aInsertion = Config::getInstance().mInfoIndex.get(&file)->insertionDate;
+        file = b.key;
+        time_t bInsertion = Config::getInstance().mInfoIndex.get(&file)->insertionDate;
+        if (aInsertion > bInsertion) {
+            return 1;
+        } else if (aInsertion == bInsertion) {
+            return 0;
+        } else {
+            return -1;
+        }
+    }
+
+    Config::Config() : initialized(false), mInfoIndex(busca_imd_core::ultraFastHash){
         std::setlocale(LC_COLLATE, "pt_BR.UTF-8");
         char *cfgDir = getConfigDirPath();
         mIndexFilePath = joinPath(cfgDir, INDEX_WORD_PATH);
@@ -36,13 +61,10 @@ namespace busca_imd_config {
         delete []cfgDir;
     }
 
-    void Config::init(bool loadOnlyIndex) {
+    void Config::init() {
         if (!initialized) {
             initialized = true;
             internalLoadIndex();
-
-            if (loadOnlyIndex) return;
-
             internalLoadInfoList();
         }
     }
@@ -85,8 +107,12 @@ namespace busca_imd_config {
                 return;
             }
             in >> mInfoList;
+            for (auto &&info : mInfoList) {
+                mInfoIndex.put(&info.filePath, &info);
+            }
         } catch (std::ifstream::failure e) {
             mInfoList.clear();
+            mInfoIndex.clear();
             Index::getInstance().release();
         }
     }
@@ -123,54 +149,57 @@ namespace busca_imd_config {
         }
     }
 
-    void Config::insertOrUpdateFile(busca_imd_core::ShortString filePath) {
-        for (FileInfo info : mInfoList) {
-
-            if (info.filePath == filePath) {
-                if (info.updateIndex()) {
-                    mInfoList.remove(info);
-                    mInfoList.add(info);
-                    persistIndex();
-                    persistInfoList();
-                }
-                return;
+    int Config::insertOrUpdateFile(busca_imd_core::ShortString filePath) {
+        int modificationType = DB_FILE_NOT_MODIFIED;
+        try {
+            FileInfo * info = mInfoIndex.get(&filePath);
+            if (info->updateIndex()) {
+                FileInfo updatedInfo = *info;
+                mInfoIndex.remove(&info->filePath);
+                mInfoList.remove(*info);
+                mInfoList.add(updatedInfo);
+                mInfoIndex.put(&updatedInfo.filePath, &mInfoList.get(mInfoList.size()- 1));
+                modificationType = DB_FILE_UPDATE;
             }
+        } catch (int e) {
+            modificationType = DB_FILE_INSERTION;
+            FileInfo info(filePath);
+            mInfoList.add(info);
+            mInfoIndex.put(&info.filePath, &mInfoList.get(mInfoList.size() -1));
         }
-
-//        std::cout << "adding " << filePath << std::endl;
-        FileInfo info(filePath);
-        mInfoList.add(info);
-
-        persistIndex();
-        persistInfoList();
+        if (modificationType != DB_FILE_NOT_MODIFIED) {
+            persistIndex();
+            persistInfoList();
+        }
+        return modificationType;
     }
 
     void Config::removeFile(busca_imd_core::ShortString filePath) {
-        for (FileInfo info : mInfoList) {
-//            std::cout << "checkinf " << filePath << " against " << info.filePath << std::endl;
-            if (info.filePath == filePath) {
-                Index::getInstance().removeFile(filePath);
-                mInfoList.remove(info);
-                persistIndex();
-                persistInfoList();
-                return;
-            }
+        try {
+            FileInfo * info = mInfoIndex.get(&filePath);
+            Index::getInstance().removeFile(filePath);
+            mInfoIndex.remove(&info->filePath);
+            mInfoList.remove(*info);
+            persistIndex();
+            persistInfoList();
+            return;
+        } catch (int e) {
+            throw FILE_NOT_FOUND;
         }
-        throw FILE_NOT_FOUND;
     }
 
     busca_imd_core::List<FileInfo> Config::getFiles() {
         return mInfoList;
     }
 
-    Config &Config::getInstance(bool loadOnlyIndex) {
+    Config &Config::getInstance() {
         static Config config;
-        config.init(loadOnlyIndex);
+        config.init();
         return config;
     }
 
     void Config::loadIndex() {
-        getInstance(true);
+        getInstance();
     }
 
     int Config::insertFiles(int argc, char **argv) {
@@ -181,23 +210,34 @@ namespace busca_imd_config {
             char *file = new char[strlen(argv[i])+1];
             GetFullPathName(argv[i], strlen(argv[i])+1, file, 0);
 #else
-            char *file = realpath(argv[i], nullptr);
+            char *file = new char[4096];
+            file = realpath(argv[i], file);
 #endif
-            std::cout << std::endl <<" File = " << file << std::endl;
-            if (!file) continue;
+//            std::cout << std::endl <<" File = " << file << std::endl;
             shortString = file;
             try {
-                Config::getInstance().insertOrUpdateFile(shortString);
-                std::cout << ">> Arquivo \"" << file << "\" inserido/atualizado." << std::endl;
-            } catch (int fileNotFound) {
+                switch (Config::getInstance().insertOrUpdateFile(shortString)) {
+                    case DB_FILE_INSERTION:
+                        std::cout << ">> Arquivo \"" << file << "\" inserido." << std::endl;
+                        break;
+                    case DB_FILE_UPDATE:
+                        std::cout << ">> Arquivo \"" << file << "\" atualizado." << std::endl;
+                        break;
+                    case DB_FILE_NOT_MODIFIED:
+                    default:
+                        std::cout << ">> Arquivo \"" << file << "\" sem modificações." << std::endl;
+                        break;
+                }
+            } catch (int e) {
                 std::cout << ">> Arquivo \"" << file << "\" não encontrado." << std::endl;
-                delete file;
+                delete[] file;
                 exit(1);
             }
-            delete file;
+            delete[] file;
             //insert one or more files to the search base
         }//if it has zero files to insert, print a message explaining that the "-i" argument need at least
         //one file directory
+        return 0;
     }
 
     int Config::removeFiles(int argc, char **argv) {
@@ -223,6 +263,7 @@ namespace busca_imd_config {
             //remove one or more files to the search base
         }//if it has zero files to insert, print a message explaining that the "-r" argument need at least
         //one file name
+        return 0;
     }
 
     int Config::listFiles(int argc, char **argv) {
@@ -259,5 +300,25 @@ namespace busca_imd_config {
         return 0;
     }
 
+    busca_imd_index::SearchResultEntryList *Config::orderSearch(busca_imd_index::SearchResult &result,
+                                                                busca_imd_index::SearchParams &params) {
+        SearchResultEntryList * list = new SearchResultEntryList;
+        for (auto &&item : result) {
+            list->add(item);
+        }
+        switch (params.order) {
+            case 'A':
+                list->sort(searchEntryAlphabeticalOrder);
+                break;
+            case 'C':
+                list->sort(searchEntryReverseWordsCountOrder);
+                break;
+            case 'I':
+            default:
+                list->sort(searchEntryFileInsertionOrder);
+                break;
+        }
+        return list;
+    }
 
 }

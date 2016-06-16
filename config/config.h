@@ -20,6 +20,10 @@
 #define INDEX_FILE_PATH "index_file_imd"
 #define INDEX_WORD_PATH "index_words_imd"
 
+#define DB_FILE_NOT_MODIFIED 0
+#define DB_FILE_INSERTION 1
+#define DB_FILE_UPDATE 2
+
 #define NATURAL_ORDER 'i'
 #define WORDS_COUNT_ORDER 't'
 #define ALPHABETICAL_ORDER 'a'
@@ -28,12 +32,15 @@ namespace busca_imd_config{
     //this class will read the files inputed by the user, add the properties of this file to the file index and
     //will populate the word hash map
 
+    int searchEntryFileInsertionOrder(busca_imd_index::SearchResult::Entry const & a, busca_imd_index::SearchResult::Entry const & b);
+
     class Config{
     private:
         bool initialized;
         char * mInfoListFilePath;
         char * mIndexFilePath;
         busca_imd_core::List<FileInfo> mInfoList;
+        busca_imd_core::HashMap<busca_imd_core::ShortString*, FileInfo*> mInfoIndex;
 
         char * getConfigDirPath();
 
@@ -47,7 +54,7 @@ namespace busca_imd_config{
 
         Config();
 
-        void init(bool loadOnlyIndex);
+        void init();
 
     public:
 
@@ -56,12 +63,12 @@ namespace busca_imd_config{
         Config(Config const&) = delete;
         void operator=(Config const&) = delete;
 
-        void insertOrUpdateFile(busca_imd_core::ShortString filePath);
+        int insertOrUpdateFile(busca_imd_core::ShortString filePath);
         void removeFile(busca_imd_core::ShortString filePath);
         busca_imd_core::List<FileInfo> getFiles();
 
         // façade methods
-        static Config & getInstance(bool loadOnlyIndex = false);
+        static Config &getInstance();
 
         static void loadIndex();
 
@@ -71,6 +78,9 @@ namespace busca_imd_config{
 
         static int listFiles(int argc, char ** argv);
 
+        static busca_imd_index::SearchResultEntryList * orderSearch(busca_imd_index::SearchResult &result, busca_imd_index::SearchParams & params);
+
+        friend int searchEntryFileInsertionOrder(busca_imd_index::SearchResult::Entry const & a, busca_imd_index::SearchResult::Entry const & b);
     };
 
 }

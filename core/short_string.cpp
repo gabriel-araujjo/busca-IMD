@@ -88,7 +88,7 @@ namespace busca_imd_core {
         }
         mAllocatedSize = i;
         i = 0;
-        for (char c : list) {
+        for (auto &&c : list) {
             mValue[i++] = c;
         }
     }

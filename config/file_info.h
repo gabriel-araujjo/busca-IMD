@@ -6,7 +6,7 @@
 #define BUSCA_IMD_FILE_INFO_H
 
 #ifndef FILE_NOT_FOUND
-#define FILE_NOT_FOUND
+#define FILE_NOT_FOUND 2
 #endif
 
 #include <iosfwd>
@@ -23,6 +23,7 @@ namespace busca_imd_config {
     public:
         busca_imd_core::ShortString filePath;
         time_t lastModified;
+        time_t insertionDate;
         int totalWords;
 
         FileInfo();

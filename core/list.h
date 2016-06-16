@@ -97,7 +97,7 @@ namespace busca_imd_core {
         void sort(Comparator comparator);
         void intersection(const List<Element> &other, Comparator comparator);
         void join(const List<Element> &other, Comparator);
-        Element get(int index);
+        Element &get(int index);
         bool contains(Element &element);
         int size()const;
         void clear();
@@ -256,7 +256,7 @@ namespace busca_imd_core {
     }
 
     template <typename Element>
-    Element List<Element>::get(int index) {
+    Element &List<Element>::get(int index) {
         Node node = getNodeAt(index);
         if (!node) throw LIST_INDEX_OF_BOUND_EXCEPTION;
         return *(node->element);
@@ -471,7 +471,7 @@ namespace busca_imd_core {
                                       const busca_imd_core::List<Element> &list ) {
         uint16_t listSize = (uint16_t) list.mSize;
         output.write((char*) &listSize, sizeof(uint16_t));
-        for (auto item : list) {
+        for (auto &&item : list) {
             output << item;
         }
         return output;

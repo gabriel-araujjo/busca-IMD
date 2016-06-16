@@ -136,8 +136,8 @@ namespace busca_imd_core {
     bool HashMap<Key, Value>::put(Key key, Value value) {
         ptrEntry entry = getEntry(key, true);
         entry->entry.value = value;
-        std::cout << "index size = " << mEntries->size() << std::endl;
-        std::cout << "size = " << mSize << std::endl;
+//        std::cout << "index size = " << mEntries->size() << std::endl;
+//        std::cout << "size = " << mSize << std::endl;
         return true;
     }
 
