@@ -211,7 +211,10 @@ namespace busca_imd_config {
             GetFullPathName(argv[i], strlen(argv[i])+1, file, 0);
 #else
             char *file = new char[4096];
-            file = realpath(argv[i], file);
+            if (!realpath(argv[i], file)) {
+                std::cout << ">> Arquivo \"" << file << "\" não encontrado." << std::endl;
+                return 0;
+            }
 #endif
 //            std::cout << std::endl <<" File = " << file << std::endl;
             shortString = file;
