@@ -208,11 +208,14 @@ namespace busca_imd_config {
         for (int i = 2; i < argc; i++) {
 #if defined(WIN32) || defined(_WIN32)
             char *file = new char[strlen(argv[i])+1];
-            GetFullPathName(argv[i], strlen(argv[i])+1, file, 0);
+            if (!GetFullPathName(argv[i], strlen(argv[i])+1, file, 0)) {
+                std::cout << ">> Arquivo \"" << argv[i] << "\" não encontrado." << std::endl;
+                return 0;
+            }
 #else
             char *file = new char[4096];
             if (!realpath(argv[i], file)) {
-                std::cout << ">> Arquivo \"" << file << "\" não encontrado." << std::endl;
+                std::cout << ">> Arquivo \"" << argv[i] << "\" não encontrado." << std::endl;
                 return 0;
             }
 #endif
